@@ -1,0 +1,5 @@
+Bin
+.vs
+src/shaders/*.hpp
+*.vcxproj.user
+*\*.vcxproj.user
