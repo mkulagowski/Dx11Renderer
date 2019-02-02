@@ -1,8 +1,7 @@
 #include "Model.hpp"
 
-#include<array>
-#include <fstream>
 #include "model_obj/model_obj.h"
+#include "IcosphereCreator.hpp"
 
 Model::Model()
 {
@@ -18,22 +17,23 @@ bool Model::Init(ID3D11Device * device)
 	return InitializeBuffers(device);
 }
 
-bool Model::Init(ID3D11Device* device, std::string path)
+bool Model::Init(ID3D11Device * device, std::shared_ptr<MaterialProperties> material)
 {
 	if (!Init(device))
 		return false;
-	
-	mTexture = std::make_shared<Texture>();
-	return mTexture->Initialize(device, path);
+
+	mMaterial = material;
+	return true;
 }
 
-bool Model::Init(ID3D11Device * device, std::shared_ptr<Texture> texture)
+void Model::SetMaterial(std::shared_ptr<MaterialProperties> material)
 {
-	if (!Init(device))
-		return false;
+	mMaterial = material;
+}
 
-	mTexture = texture;
-	return true;
+MaterialProperties * Model::GetMaterial() const
+{
+	return mMaterial.get();
 }
 
 void Model::LoadCube(Vector halfSize)
@@ -121,7 +121,6 @@ void Model::LoadCube(Vector halfSize)
 	mIndices.push_back(23);  // Bottom right.
 }
 
-#include "IcosphereCreator.hpp"
 void Model::LoadIcoSphere(float radius, uint8_t subdivisions)
 {
 	IcosphereCreator creator;
@@ -142,19 +141,6 @@ void Model::LoadIcoSphere(float radius, uint8_t subdivisions)
 	{
 		mIndices.push_back(static_cast<uint32_t>(i));
 	}
-	/*
-	Float3 top(0.f, 0.f, radius);
-	// 2 * PI * r - obwód
-	float deltaTheta = 3.1415f / (parallels + 2);
-	float deltaPhi = 2 * 3.1415f / meridians;
-	float theta = 0;
-	for (int i = 0; i < meridians; i++)
-	{
-		theta += deltaTheta;
-
-	}*/
-
-
 }
 
 void Model::LoadCone(float halfHeight, float radius, uint8_t subdivisions)
@@ -276,87 +262,6 @@ void Model::LoadFromObjFile(std::string path)
 	for (int i = 0; i < size; i++) {
 		mIndices.push_back(static_cast<uint32_t>(ptri[i]));
 	}
-
-	/*
-	//File inFile(path, AccessMode::Read);
-	std::ifstream inFile(path, std::fstream::in);
-	std::vector<Float3> verts;
-	std::vector<Float2> texs;
-	std::vector<Float3> norms;
-	while (inFile) {
-		char line[1024];
-		inFile.getline(line, 1024);
-		if (!inFile)
-			continue;
-		if (line[0] == 'f' || line[0] == 'F')
-		{
-			std::string lineStr(line);
-			size_t lastSpace;
-
-			int i1 = std::stoi(lineStr.substr(2), &lastSpace);
-			lineStr = lineStr.substr(3 + lastSpace);
-			int i2 = std::stoi(lineStr, &lastSpace);
-			lineStr = lineStr.substr(1 + lastSpace);
-			int i3 = std::stoi(lineStr, &lastSpace);
-			lineStr = lineStr.substr(lastSpace);
-
-			mVertices.push_back({ verts[i1 - 1], texs[i2 - 1], norms[i3 - 1] });
-
-			i1 = std::stoi(lineStr, &lastSpace);
-			lineStr = lineStr.substr(1 + lastSpace);
-			i2 = std::stoi(lineStr, &lastSpace);
-			lineStr = lineStr.substr(1 + lastSpace);
-			i3 = std::stoi(lineStr, &lastSpace);
-			lineStr = lineStr.substr(lastSpace);
-
-			mVertices.push_back({ verts[i1 - 1], texs[i2 - 1], norms[i3 - 1] });
-
-			i1 = std::stoi(lineStr, &lastSpace);
-			lineStr = lineStr.substr(1 + lastSpace);
-			i2 = std::stoi(lineStr, &lastSpace);
-			i3 = std::stoi(lineStr.substr(1 + lastSpace), nullptr);
-
-			mVertices.push_back({ verts[i1 - 1], texs[i2 - 1], norms[i3 - 1] });
-			mIndices.push_back(mIndices.size());
-			mIndices.push_back(mIndices.size());
-			mIndices.push_back(mIndices.size());
-
-		} else if (line[0] == 'v' || line[0] == 'V')
-		{
-			if (line[1] == 't' || line[1] == 'T')
-			{
-				std::string lineStr(line);
-				size_t lastSpace;
-				float f1 = std::stof(lineStr.substr(3), &lastSpace);
-				float f2 = std::stof(lineStr.substr(3 + lastSpace), nullptr);
-				texs.push_back(Float2(f1, f2));
-			}
-			else if (line[1] == 'n' || line[1] == 'N')
-			{
-				std::string lineStr(line);
-				size_t lastSpace;
-				float f1 = std::stof(lineStr.substr(3), &lastSpace);
-				lineStr = lineStr.substr(3 + lastSpace);
-				float f2 = std::stof(lineStr, &lastSpace);
-				float f3 = std::stof(lineStr.substr(lastSpace), nullptr);
-				norms.push_back(Float3(f1, f2, f3));
-
-			}
-			else
-			{
-				std::string lineStr(line);
-				size_t lastSpace;
-
-				float f1 = std::stof(lineStr.substr(2), &lastSpace);
-				lineStr = lineStr.substr(2 + lastSpace);
-				float f2 = std::stof(lineStr, &lastSpace);
-				float f3 = std::stof(lineStr.substr(lastSpace), nullptr);
-				verts.push_back(Float3(f1/20, f2/20, -f3/20));
-			}
-
-		}
-	}
-	*/
 }
 
 void Model::Bind(ID3D11DeviceContext *deviceContext)
@@ -376,21 +281,6 @@ void Model::Bind(ID3D11DeviceContext *deviceContext)
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-Texture* Model::GetTexture()
-{
-	return mTexture.get();
-}
-
-bool Model::HasTexture() const
-{
-	return static_cast<bool>(mTexture);
-}
-
-void Model::SetTexture(std::shared_ptr<Texture> tex)
-{
-	mTexture = tex;
-}
-
 int Model::GetIndexCount() const
 {
 	return mIndices.size();
@@ -404,6 +294,21 @@ Vector Model::GetPosition() const
 void Model::SetPosition(const Vector & pos)
 {
 	mPosition = pos;
+}
+
+Matrix Model::GetRotation() const
+{
+	return mRotation;
+}
+
+void Model::SetRotation(const Matrix & rot)
+{
+	mRotation = rot;
+}
+
+Matrix Model::GetWorldMatrix() const
+{
+	return mRotation * Matrix::MakeTranslation3(mPosition);
 }
 
 bool Model::InitializeBuffers(ID3D11Device * device)

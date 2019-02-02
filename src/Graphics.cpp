@@ -77,21 +77,21 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 	mModels.back()->LoadCube({ 2.f, 4.f, 2.f });
 	mModels.back()->Init(mD3d->GetDevice());
 	mModels.back()->SetPosition(Vector(4, 4, 4, 0));
-	mModels.back()->mRot = Matrix::MakeRotationNormal(Vector(0,1,0), 45.f  * 3.1415f / 180.f);
-	mModels.back()->mMat = mMaterialProperties[3];
+	mModels.back()->SetRotation(Matrix::MakeRotationNormal(Vector(0,1,0), 45.f  * 3.1415f / 180.f));
+	mModels.back()->SetMaterial(mMaterialProperties[3]);
 
 
 	mModels.push_back(std::make_unique<Model>());
 	mModels.back()->LoadIcoSphere(2.f, 3);
 	mModels.back()->Init(mD3d->GetDevice());
 	mModels.back()->SetPosition(Vector(-4, 2, -4, 0));
-	mModels.back()->mMat = mMaterialProperties[5];
+	mModels.back()->SetMaterial(mMaterialProperties[5]);
 	
 	mModels.push_back(std::make_unique<Model>());
 	mModels.back()->LoadIcoSphere(2.f, 3);
 	mModels.back()->Init(mD3d->GetDevice());
 	mModels.back()->SetPosition(Vector(4, 0.5, -4, 0));
-	mModels.back()->mMat = mMaterialProperties[2];
+	mModels.back()->SetMaterial(mMaterialProperties[2]);
 
 	//floor
 	
@@ -99,30 +99,30 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 	mModels.back()->LoadPlane(10.f, 10.f);
 	mModels.back()->Init(mD3d->GetDevice());
 	mModels.back()->SetPosition(Vector(0, 0, 0, 0));
-	mModels.back()->mMat = mMaterialProperties[4];
+	mModels.back()->SetMaterial(mMaterialProperties[4]);
 
 	// walls
 
 	mModels.push_back(std::make_unique<Model>());
 	mModels.back()->LoadPlane(10.f, 10.f);
 	mModels.back()->Init(mD3d->GetDevice());
-	mModels.back()->mRot = Matrix::MakeRotationNormal(Vector(1, 0, 0), 90.f  * 3.1415f / 180.f);
+	mModels.back()->SetRotation(Matrix::MakeRotationNormal(Vector(1, 0, 0), 90.f  * 3.1415f / 180.f));
 	mModels.back()->SetPosition(Vector(0, 10, 10, 0));
-	mModels.back()->mMat = mMaterialProperties[1];
+	mModels.back()->SetMaterial(mMaterialProperties[1]);
 
 	mModels.push_back(std::make_unique<Model>());
 	mModels.back()->LoadPlane(10.f, 10.f);
-	mModels.back()->Init(mD3d->GetDevice());// , "E:/Projects/Engine/src/resources/brick.png");
-	mModels.back()->mRot = Matrix::MakeRotationNormal(Vector(1, 0, 0), 90.f  * 3.1415f / 180.f) * Matrix::MakeRotationNormal(Vector(0, 1, 0), 90.f  * 3.1415f / 180.f);
+	mModels.back()->Init(mD3d->GetDevice());
+	mModels.back()->SetRotation(Matrix::MakeRotationNormal(Vector(1, 0, 0), 90.f  * 3.1415f / 180.f) * Matrix::MakeRotationNormal(Vector(0, 1, 0), 90.f  * 3.1415f / 180.f));
 	mModels.back()->SetPosition(Vector(-10, 10, 0, 0));
-	mModels.back()->mMat = mMaterialProperties[1];
+	mModels.back()->SetMaterial(mMaterialProperties[1]);
 
 	mModels.push_back(std::make_unique<Model>());
 	mModels.back()->LoadPlane(10.f, 10.f);
-	mModels.back()->Init(mD3d->GetDevice());// , "E:/Projects/Engine/src/resources/brick.png");
-	mModels.back()->mRot = Matrix::MakeRotationNormal(Vector(1, 0, 0), 90.f  * 3.1415f / 180.f) * Matrix::MakeRotationNormal(Vector(0, 1, 0), -90.f  * 3.1415f / 180.f);
+	mModels.back()->Init(mD3d->GetDevice());
+	mModels.back()->SetRotation(Matrix::MakeRotationNormal(Vector(1, 0, 0), 90.f  * 3.1415f / 180.f) * Matrix::MakeRotationNormal(Vector(0, 1, 0), -90.f  * 3.1415f / 180.f));
 	mModels.back()->SetPosition(Vector(10, 10, 0, 0));
-	mModels.back()->mMat = mMaterialProperties[1];
+	mModels.back()->SetMaterial(mMaterialProperties[1]);
 
 
 
@@ -174,7 +174,7 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 				mModels.back()->SetPosition(LightPosition);
 
 				mMaterialProperties.push_back(lightMat);
-				mModels.back()->mMat = mMaterialProperties.back();
+				mModels.back()->SetMaterial(mMaterialProperties.back());
 			}
 			else if (light.LightType == LightType::SpotLight)
 			{
@@ -184,25 +184,19 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 				mModels.back()->SetPosition(LightPosition);
 
 				mMaterialProperties.push_back(lightMat);
-				mModels.back()->mMat = mMaterialProperties.back();
+				mModels.back()->SetMaterial(mMaterialProperties.back());
 
 				Vector vec(0, -1, 0);
 				float cos = Vector::Dot3(vec, LightDirection);
 				float sin = sqrt(1.f - (cos*cos));
 				Vector axis = Vector::Cross3(LightDirection, vec);
 				float angle = atan(sin / cos);
-				mModels.back()->mRot = Matrix::MakeRotationNormal(axis, angle);
+				mModels.back()->SetRotation(Matrix::MakeRotationNormal(axis, angle));
 			}
 		}
 	}
 
 	return true;
-}
-
-bool Graphics::Frame()
-{
-	// Render the graphics scene.
-	return Render();
 }
 
 void Graphics::MoveCamera(float x, float y, double delta, Camera::Move dir)
@@ -221,19 +215,13 @@ bool Graphics::Render()
 	// Clear the buffers to begin the scene.
 	mD3d->BeginScene(Vector(0.0f, 0.0f, 0.0f, 1.0f));
 
-	// Get the world, view, and projection matrices from the camera and d3d objects.
-	Matrix viewMatrix = mCamera->GetViewMatrix();
-	Matrix projectionMatrix = mD3d->GetProjectionMatrix();
-	Matrix worldMatrix;
-
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	for (auto &i : mModels)
 	{
 		i->Bind(mD3d->GetDeviceContext());
-		Vector pos = i->GetPosition();
 
-		mShader->Render(mD3d->GetDeviceContext(), i->GetIndexCount(), i->mRot * Matrix::MakeTranslation3(pos), viewMatrix, projectionMatrix,
-			mCamera->GetPosition(), *mLight.get(), i->mMat.get());
+		mShader->Render(mD3d->GetDeviceContext(), i->GetIndexCount(), i->GetWorldMatrix(), mCamera->GetViewMatrix(), mD3d->GetProjectionMatrix(),
+			mCamera->GetPosition(), *mLight.get(), i->GetMaterial());
 	}
 
 	// Present the rendered scene to the screen.

@@ -121,7 +121,7 @@ bool Manager::frame(double delta)
 	if (!anyKey)
 		mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::None);
 	// Do the frame processing for the graphics object.
-	result = mGraphics->Frame();
+	result = mGraphics->Render();
 	if (!result)
 	{
 		return false;

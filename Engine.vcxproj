@@ -180,6 +180,7 @@
     <ClCompile Include="src\Direct3d.cpp" />
     <ClCompile Include="src\File.cpp" />
     <ClCompile Include="src\Graphics.cpp" />
+    <ClCompile Include="src\IcosphereCreator.cpp" />
     <ClCompile Include="src\Image.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Light.cpp" />

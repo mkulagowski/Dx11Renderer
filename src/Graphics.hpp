@@ -23,12 +23,11 @@ public:
 	~Graphics();
 
 	bool Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd);
-	bool Frame();
+	bool Render();
 	void MoveCamera(float x, float y, double delta, Camera::Move dir);
 	void ZoomCamera(float z);
 
 private:
-	bool Render();
 
 	std::unique_ptr<Direct3d> mD3d;
 	std::unique_ptr<Camera> mCamera;

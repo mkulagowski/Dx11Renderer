@@ -152,6 +152,9 @@
     <ClCompile Include="src\Input.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\IcosphereCreator.cpp">
+      <Filter>Header Files\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\ColorPS.hlsl">
