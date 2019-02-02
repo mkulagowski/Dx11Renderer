@@ -6,7 +6,7 @@
 #pragma comment(lib, "dxguid.lib")
 #include <dinput.h>
 #include "DxObject.hpp"
-#include "Vector.hpp"
+#include "Float2.hpp"
 
 class Input
 {

@@ -1,6 +1,6 @@
 #include "LightShader.hpp"
-#include "shaders/light_ps.hpp"
-#include "shaders/light_vs.hpp"
+#include "shaders/mat_ps.hpp"
+#include "shaders/mat_vs.hpp"
 
 LightShader::LightShader()
 {
@@ -10,13 +10,13 @@ LightShader::~LightShader()
 {
 }
 
-bool LightShader::Render(ID3D11DeviceContext * deviceContext, int indexCount, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, ID3D11ShaderResourceView * texture, Vector lightDirection, Vector ambientColor, Vector diffuseColor, Vector cameraPosition, Vector specularColor, float specularPower)
+bool LightShader::Render(ID3D11DeviceContext * deviceContext, int indexCount, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, Vector cameraPos, LightBufferType& light, MaterialProperties* material)
 {
 	bool result;
 
 
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, ambientColor, diffuseColor, cameraPosition, specularColor, specularPower);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, cameraPos, light, material);
 	if (!result)
 	{
 		return false;
@@ -56,14 +56,6 @@ bool LightShader::CreateInputLayout(ID3D11Device* device, const unsigned char* v
 	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[0].InstanceDataStepRate = 0;
 
-	polygonLayout[1].SemanticName = "TEXCOORD";
-	polygonLayout[1].SemanticIndex = 0;
-	polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	polygonLayout[1].InputSlot = 0;
-	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[1].InstanceDataStepRate = 0;
-
 	polygonLayout[2].SemanticName = "NORMAL";
 	polygonLayout[2].SemanticIndex = 0;
 	polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -71,6 +63,14 @@ bool LightShader::CreateInputLayout(ID3D11Device* device, const unsigned char* v
 	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[2].InstanceDataStepRate = 0;
+
+	polygonLayout[1].SemanticName = "TEXCOORD";
+	polygonLayout[1].SemanticIndex = 0;
+	polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+	polygonLayout[1].InputSlot = 0;
+	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[1].InstanceDataStepRate = 0;
 
 	// Get a count of the elements in the layout.
 	unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
@@ -115,6 +115,39 @@ bool LightShader::CreateCBuffers(ID3D11Device* device)
 	}
 
 
+
+	//D3D11_BUFFER_DESC materialBufferDesc;
+	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
+	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cameraBufferDesc.ByteWidth = sizeof(Material);
+	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cameraBufferDesc.MiscFlags = 0;
+	cameraBufferDesc.StructureByteStride = 0;
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	result = device->CreateBuffer(&cameraBufferDesc, NULL, mMaterialBuffer.getAt());
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
 	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
 
@@ -156,13 +189,13 @@ bool LightShader::CreateTextureSampler(ID3D11Device* device)
 
 bool LightShader::InitializeShader(ID3D11Device * device, HWND hwnd)
 {
-	if (!CreateVertexShader(device, gLightVSArray, sizeof(gLightVSArray)))
+	if (!CreateVertexShader(device, gMatVSArray, sizeof(gMatVSArray)))
 		return false;
 
-	if (!CreatePixelShader(device, gLightPSArray, sizeof(gLightPSArray)))
+	if (!CreatePixelShader(device, gMatPSArray, sizeof(gMatPSArray)))
 		return false;
 
-	if (!CreateInputLayout(device, gLightVSArray, sizeof(gLightVSArray)))
+	if (!CreateInputLayout(device, gMatVSArray, sizeof(gMatVSArray)))
 		return false;
 
 	if (!CreateTextureSampler(device))
@@ -175,13 +208,15 @@ bool LightShader::InitializeShader(ID3D11Device * device, HWND hwnd)
 }
 
 bool LightShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, Matrix worldMatrix, Matrix viewMatrix,
-	Matrix projectionMatrix, ID3D11ShaderResourceView* texture, Vector lightDirection, Vector ambientColor,
-	Vector diffuseColor, Vector cameraPosition, Vector specularColor, float specularPower)
+	Matrix projectionMatrix, Vector cameraPosition, LightBufferType& light, MaterialProperties* material)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	ID3D11ShaderResourceView* texPtr = nullptr;
+	if (material->mMaterial.mUseTexture)
+		texPtr = material->mTexture->GetShaderResourceView();
 
-	if (!TextureShader::SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture))
+	if (!TextureShader::SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texPtr))
 		return false;
 
 	// Lock the light constant buffer so it can be written to.
@@ -193,30 +228,27 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, Matri
 
 	// Get a pointer to the data in the constant buffer.
 	LightBufferType* dataPtr = (LightBufferType*)mappedResource.pData;
-
-	// Copy the lighting variables into the constant buffer.
-	dataPtr->ambientColor = Float4(ambientColor);
-	dataPtr->diffuseColor = Float4(diffuseColor);
-	dataPtr->lightDirection = Float3(lightDirection);
-	dataPtr->specularColor = Float4(specularColor);
-	dataPtr->specularPower = specularPower;
+	dataPtr->EyePosition = cameraPosition;
+	dataPtr->GlobalAmbient = light.GlobalAmbient;
+	for (int i = 0; i < 8; i++)
+		dataPtr->Lights[i] = light.Lights[i];
 
 	// Unlock the constant buffer.
 	deviceContext->Unmap(mLightBuffer.get(), 0);
 
 	// Set the position of the light constant buffer in the pixel shader.
-	unsigned int bufferNumber = 0;
+	unsigned int bufferNumber = 1;
 
 	// Finally set the light constant buffer in the pixel shader with the updated values.
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, mLightBuffer.getAt());
-
+	
 	// Lock the light constant buffer so it can be written to.
 	result = deviceContext->Map(mCameraBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 	{
 		return false;
 	}
-
+	/*
 	// Get a pointer to the data in the constant buffer.
 	CameraBufferType* dataPtrCam = (CameraBufferType*)mappedResource.pData;
 
@@ -232,7 +264,37 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, Matri
 
 	// Finally set the light constant buffer in the pixel shader with the updated values.
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, mCameraBuffer.getAt());
+	*/
+	// Lock the light constant buffer so it can be written to.
+	if (material)
+	{
+		result = deviceContext->Map(mMaterialBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+		{
+			return false;
+		}
 
+		// Get a pointer to the data in the constant buffer.
+		Material* dataPtrMat = (Material*)mappedResource.pData;
+
+		// Copy the lighting variables into the constant buffer.
+		dataPtrMat->mAmbient = material->mMaterial.mAmbient;
+		dataPtrMat->mDiffuse = material->mMaterial.mDiffuse;
+		dataPtrMat->mEmissive = material->mMaterial.mEmissive;
+		dataPtrMat->mSpecular = material->mMaterial.mSpecular;
+		dataPtrMat->mSpecularPower = material->mMaterial.mSpecularPower;
+		dataPtrMat->mUseTexture = material->mMaterial.mUseTexture;
+		//dataPtrCam->padding = 0.f;
+
+		// Unlock the constant buffer.
+		deviceContext->Unmap(mMaterialBuffer.get(), 0);
+
+		// Set the position of the light constant buffer in the pixel shader.
+		bufferNumber = 0;
+
+		// Finally set the light constant buffer in the pixel shader with the updated values.
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, mMaterialBuffer.getAt());
+	}
 
 	return true;
 }

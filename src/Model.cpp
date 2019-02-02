@@ -36,7 +36,7 @@ bool Model::Init(ID3D11Device * device, std::shared_ptr<Texture> texture)
 	return true;
 }
 
-void Model::LoadCube(float halfSize)
+void Model::LoadCube(Vector halfSize)
 {
 	mVertices.clear();
 	mVertices.reserve(4 * 6);
@@ -72,7 +72,7 @@ void Model::LoadCube(float halfSize)
 	mVertices.push_back({ Float3( 1, -1,  1) , Float2(1, 1) , Float3( 0, -1,  0) });
 
 	for (auto &i : mVertices)
-		i.position *= halfSize;
+		i.position = Float3(Vector(i.position.f[0], i.position.f[1], i.position.f[2]) * halfSize);
 
 
 	mIndices.clear();
@@ -107,8 +107,8 @@ void Model::LoadCube(float halfSize)
 	mIndices.push_back(15);  // Bottom right.
 
 	mIndices.push_back(16);  // Bottom left.
-	mIndices.push_back(18);  // Top middle.
-	mIndices.push_back(17);  // Bottom right.
+	mIndices.push_back(17);  // Top middle.
+	mIndices.push_back(18);  // Bottom right.
 	mIndices.push_back(18);  // Bottom left.
 	mIndices.push_back(17);  // Top middle.
 	mIndices.push_back(19);  // Bottom right.
@@ -157,15 +157,89 @@ void Model::LoadIcoSphere(float radius, uint8_t subdivisions)
 
 }
 
-void Model::LoadSquare()
+void Model::LoadCone(float halfHeight, float radius, uint8_t subdivisions)
+{
+}
+
+void Model::LoadPyramid(Vector halfSize)
+{
+	mVertices.clear();
+	mVertices.reserve(16);
+
+	const float x = halfSize.f[0];
+	const float y = halfSize.f[1];
+	const float z = halfSize.f[2];
+
+	auto simpleNormal = [&](Vector v1, Vector v2, Vector v3)
+	{
+		Vector edge1 = v2 - v1;
+		Vector edge2 = v3 - v1;
+		return Vector::Cross3(edge1, edge2).Normalized3();
+	};
+
+	Float3 simpleNormB(simpleNormal(Vector(x, -y, z), Vector(-x, -y, z), Vector(0, y, 0)));
+	Float3 simpleNormL(simpleNormal(Vector(-x, -y, z), Vector(-x, -y, -z), Vector(0, y, 0)));
+	Float3 simpleNormF(simpleNormal(Vector(-x, -y, -z), Vector(x, -y, -z), Vector(0, y, 0)));
+	Float3 simpleNormR(simpleNormal(Vector(x, -y, z), Vector(x, -y, z), Vector(0, y, 0)));
+
+
+	mVertices.push_back({ Float3(0.f,  y, 0.f) , Float2(.0f, .5f) , simpleNormL }); //< top
+	mVertices.push_back({ Float3(-x,  -y, z) , Float2(1.0f, .0f) , simpleNormL }); //< left
+	mVertices.push_back({ Float3(-x,  -y, -z) , Float2(1.0f, 1.f) , simpleNormL }); //< left
+
+	mVertices.push_back({ Float3(0.f,  y, 0.f) , Float2(.0f, .5f) , simpleNormF }); //< top
+	mVertices.push_back({ Float3(-x,  -y, -z) , Float2(1.0f, .0f) , simpleNormF }); //< front
+	mVertices.push_back({ Float3(x,  -y, -z) , Float2(1.0f, 1.f) , simpleNormF }); //< front
+
+	mVertices.push_back({ Float3(0.f,  y, 0.f) , Float2(.0f, .5f) , simpleNormR }); //< top
+	mVertices.push_back({ Float3(x,  -y, -z) , Float2(1.0f, .0f) , simpleNormR }); //< right
+	mVertices.push_back({ Float3(x,  -y, z) , Float2(1.0f, 1.f) , simpleNormR }); //< right
+
+	mVertices.push_back({ Float3(0.f,  y, 0.f) , Float2(.0f, .5f) , simpleNormB }); //< top
+	mVertices.push_back({ Float3(x,  -y, z) , Float2(1.0f, .0f) , simpleNormB }); //< back
+	mVertices.push_back({ Float3(-x,  -y, z) , Float2(1.0f, 1.f) , simpleNormB }); //< back
+
+	mVertices.push_back({ Float3(-x,  -y, z) , Float2(.0f, 1.0f) , Float3(0, -1, 0) }); //< LB 9
+	mVertices.push_back({ Float3(x,  -y, z) , Float2(1.0f, 1.f) , Float3(0, -1, 0) }); //< RB 10
+	mVertices.push_back({ Float3(x,  -y, -z) , Float2(1.0f, .0f) , Float3(0, -1, 0) }); //< RF 11
+	mVertices.push_back({ Float3(-x,  -y, -z) , Float2(.0f, .0f) , Float3(0, -1, 0) }); //< LF 12
+
+	mIndices.clear();
+	mIndices.reserve(6 * 3);
+	// Load the index array with data.
+	mIndices.push_back(12);
+	mIndices.push_back(15);
+	mIndices.push_back(13);
+	mIndices.push_back(15);
+	mIndices.push_back(14);
+	mIndices.push_back(13);
+
+	mIndices.push_back(0);
+	mIndices.push_back(2);
+	mIndices.push_back(1);
+
+	mIndices.push_back(3);
+	mIndices.push_back(5);
+	mIndices.push_back(4);
+
+	mIndices.push_back(6);
+	mIndices.push_back(8);
+	mIndices.push_back(7);
+
+	mIndices.push_back(9);
+	mIndices.push_back(11);
+	mIndices.push_back(10);
+}
+
+void Model::LoadPlane(float halfWidth, float halfHeight)
 {
 	mVertices.clear();
 	mVertices.reserve(4);
 
-	mVertices.push_back({ Float3(-1, -1, 0) , Float2(0, 1) , Float3(0,  0, -1) });
-	mVertices.push_back({ Float3(-1,  1, 0) , Float2(0, 0) , Float3(0,  0, -1) });
-	mVertices.push_back({ Float3( 1, -1, 0) , Float2(1, 1) , Float3(0,  0, -1) });
-	mVertices.push_back({ Float3( 1,  1, 0) , Float2(1, 0) , Float3(0,  0, -1) });
+	mVertices.push_back({ Float3(-halfWidth, 0.f, -halfHeight) , Float2(0, 1) , Float3(0, 1, 0) });
+	mVertices.push_back({ Float3(-halfWidth, 0.f,  halfHeight) , Float2(0, 0) , Float3(0, 1, 0) });
+	mVertices.push_back({ Float3( halfWidth, 0.f, -halfHeight) , Float2(1, 1) , Float3(0, 1, 0) });
+	mVertices.push_back({ Float3( halfWidth, 0.f,  halfHeight) , Float2(1, 0) , Float3(0, 1, 0) });
 
 	mIndices.clear();
 	mIndices.reserve(6);
@@ -305,6 +379,11 @@ void Model::Bind(ID3D11DeviceContext *deviceContext)
 Texture* Model::GetTexture()
 {
 	return mTexture.get();
+}
+
+bool Model::HasTexture() const
+{
+	return static_cast<bool>(mTexture);
 }
 
 void Model::SetTexture(std::shared_ptr<Texture> tex)

@@ -7,7 +7,7 @@ Graphics::Graphics()
 Graphics::~Graphics()
 {
 }
-
+#include <cstdio>
 bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 {
 	// Create the Direct3D object.
@@ -27,67 +27,182 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 	);
 
 
-
-
-	std::shared_ptr<Texture> texViolet = std::make_shared<Texture>();
-	texViolet->Initialize(mD3d->GetDevice(), Vector(1, 0, 1, 1));
-	std::shared_ptr<Texture> texLime = std::make_shared<Texture>();
-	texLime->Initialize(mD3d->GetDevice(), Vector(0.749f, 1, 0, 1));
-	std::shared_ptr<Texture> texBlue = std::make_shared<Texture>();
-	texBlue->Initialize(mD3d->GetDevice(), Vector(0, 0.749f, 1, 1));
-
-
-	mModels.push_back(std::make_unique<Model>());
-	//mModels.back()->LoadFromObjFile("E:/Projects/Engine/src/resources/model.obj");
-	mModels.back()->LoadIcoSphere(20.f, 3);
-	mModels.back()->Init(mD3d->GetDevice(), texViolet);
 	
+	std::shared_ptr<MaterialProperties> defaultMaterial = std::make_shared<MaterialProperties>();
+	defaultMaterial->mMaterial.mEmissive = Float4(0.5f, 0.5f, 0.5f, 0.5f);
+	mMaterialProperties.push_back(defaultMaterial);
+
+	std::shared_ptr<MaterialProperties> brickMaterial = std::make_shared<MaterialProperties>();
+	brickMaterial->mMaterial.mUseTexture = true;
+	brickMaterial->mTexture = std::make_shared<Texture>();
+	brickMaterial->mTexture->Initialize(mD3d->GetDevice(), "E:/Projects/Engine/src/resources/brick.png");
+	mMaterialProperties.push_back(brickMaterial);
+
+	// green
+	std::shared_ptr<MaterialProperties> greenMaterial = std::make_shared<MaterialProperties>();
+	greenMaterial->mMaterial.mAmbient = Float4(0.07568f, 0.61424f, 0.07568f, 1.0f);
+	greenMaterial->mMaterial.mDiffuse = Float4(0.07568f, 0.61424f, 0.07568f, 1.0f);
+	greenMaterial->mMaterial.mSpecular = Float4(0.07568f, 0.61424f, 0.07568f, 1.0f);
+	greenMaterial->mMaterial.mSpecularPower = 76.8f;
+	mMaterialProperties.push_back(greenMaterial);
+
+	// red plastic
+	std::shared_ptr<MaterialProperties> redPlasticMaterial = std::make_shared<MaterialProperties>();
+	redPlasticMaterial->mMaterial.mDiffuse = Float4(0.6f, 0.1f, 0.1f, 1.0f);
+	redPlasticMaterial->mMaterial.mSpecular = Float4(1.0f, 0.2f, 0.2f, 1.0f);
+	redPlasticMaterial->mMaterial.mAmbient = Float4(0.3f, 0.05f, 0.05f, 1.0f);
+	redPlasticMaterial->mMaterial.mSpecularPower = 32.0f;
+	mMaterialProperties.push_back(redPlasticMaterial);
+
+	// brown
+	std::shared_ptr<MaterialProperties> brownMaterial = std::make_shared<MaterialProperties>();
+	brownMaterial->mMaterial.mDiffuse = Float4(0.545f, 0.27f, 0.0745f, 1.0f);
+	brownMaterial->mMaterial.mSpecular = Float4((Vector(0.545f, 0.27f, 0.0745f, 1.0f) * 2).Normalized3());
+	brownMaterial->mMaterial.mAmbient = Float4(0.2725f, 0.135f, 0.03725f, 1.0f);
+	brownMaterial->mMaterial.mSpecularPower = 20.0f;
+	mMaterialProperties.push_back(brownMaterial);
+
+	// pearl
+	std::shared_ptr<MaterialProperties> pearlMaterial = std::make_shared<MaterialProperties>();
+	pearlMaterial->mMaterial.mAmbient = Float4(0.25f, 0.20725f, 0.20725f, 1.0f);
+	pearlMaterial->mMaterial.mDiffuse = Float4(1.0f, 0.829f, 0.829f, 1.0f);
+	pearlMaterial->mMaterial.mSpecular = Float4(0.296648f, 0.296648f, 0.296648f, 1.0f);
+	pearlMaterial->mMaterial.mSpecularPower = 11.264f;
+	mMaterialProperties.push_back(pearlMaterial);
+
+
+
 
 	mModels.push_back(std::make_unique<Model>());
-	mModels.back()->LoadIcoSphere(20.f, 3);
-	mModels.back()->Init(mD3d->GetDevice(), texLime);
-	mModels.back()->SetPosition(Vector(100, 0, 50, 0));
+	mModels.back()->LoadCube({ 2.f, 4.f, 2.f });
+	mModels.back()->Init(mD3d->GetDevice());
+	mModels.back()->SetPosition(Vector(4, 4, 4, 0));
+	mModels.back()->mRot = Matrix::MakeRotationNormal(Vector(0,1,0), 45.f  * 3.1415f / 180.f);
+	mModels.back()->mMat = mMaterialProperties[3];
+
 
 	mModels.push_back(std::make_unique<Model>());
-	//mModels.back()->LoadFromObjFile("E:/Projects/Engine/src/resources/model.obj");
-	mModels.back()->LoadIcoSphere(20.f, 3);
-	mModels.back()->Init(mD3d->GetDevice(), texBlue);
-	//mModels.back()->Init(mD3d->GetDevice(), "E:/Projects/Engine/src/resources/brick.png");
-	mModels.back()->SetPosition(Vector(50, 0, 100, 0));
+	mModels.back()->LoadIcoSphere(2.f, 3);
+	mModels.back()->Init(mD3d->GetDevice());
+	mModels.back()->SetPosition(Vector(-4, 2, -4, 0));
+	mModels.back()->mMat = mMaterialProperties[5];
+	
+	mModels.push_back(std::make_unique<Model>());
+	mModels.back()->LoadIcoSphere(2.f, 3);
+	mModels.back()->Init(mD3d->GetDevice());
+	mModels.back()->SetPosition(Vector(4, 0.5, -4, 0));
+	mModels.back()->mMat = mMaterialProperties[2];
+
+	//floor
+	
+	mModels.push_back(std::make_unique<Model>());
+	mModels.back()->LoadPlane(10.f, 10.f);
+	mModels.back()->Init(mD3d->GetDevice());
+	mModels.back()->SetPosition(Vector(0, 0, 0, 0));
+	mModels.back()->mMat = mMaterialProperties[4];
+
+	// walls
+
+	mModels.push_back(std::make_unique<Model>());
+	mModels.back()->LoadPlane(10.f, 10.f);
+	mModels.back()->Init(mD3d->GetDevice());
+	mModels.back()->mRot = Matrix::MakeRotationNormal(Vector(1, 0, 0), 90.f  * 3.1415f / 180.f);
+	mModels.back()->SetPosition(Vector(0, 10, 10, 0));
+	mModels.back()->mMat = mMaterialProperties[1];
+
+	mModels.push_back(std::make_unique<Model>());
+	mModels.back()->LoadPlane(10.f, 10.f);
+	mModels.back()->Init(mD3d->GetDevice());// , "E:/Projects/Engine/src/resources/brick.png");
+	mModels.back()->mRot = Matrix::MakeRotationNormal(Vector(1, 0, 0), 90.f  * 3.1415f / 180.f) * Matrix::MakeRotationNormal(Vector(0, 1, 0), 90.f  * 3.1415f / 180.f);
+	mModels.back()->SetPosition(Vector(-10, 10, 0, 0));
+	mModels.back()->mMat = mMaterialProperties[1];
+
+	mModels.push_back(std::make_unique<Model>());
+	mModels.back()->LoadPlane(10.f, 10.f);
+	mModels.back()->Init(mD3d->GetDevice());// , "E:/Projects/Engine/src/resources/brick.png");
+	mModels.back()->mRot = Matrix::MakeRotationNormal(Vector(1, 0, 0), 90.f  * 3.1415f / 180.f) * Matrix::MakeRotationNormal(Vector(0, 1, 0), -90.f  * 3.1415f / 180.f);
+	mModels.back()->SetPosition(Vector(10, 10, 0, 0));
+	mModels.back()->mMat = mMaterialProperties[1];
 
 
-
-	//mModel->Init(mD3d->GetDevice(), "E:/Projects/Engine/src/resources/brick.png");
-
-	//mModels.push_back(model);
 
 	mShader = std::make_unique<LightShader>();
 	mShader->Initialize(mD3d->GetDevice(), hwnd);
 
-	mLight = std::make_unique<Light>();
-	mLight->SetDiffuseColor(0.5f, 0.5f, 0.5f, 1.f);
-	mLight->SetAmbient(0.15f, 0.15f, 0.15f, 1.0f);
-	mLight->SetDirection(0.0f, -1.0f, 1.0f);
-	mLight->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-	mLight->SetSpecularPower(32.f);
+	mLight = std::make_unique<LightBufferType>();
+	mLight->GlobalAmbient = Float4(0.1f, 0.1f, 0.1f, 1.0f);
+
+	static const LightType LightTypes[8] = {
+		PointLight, SpotLight, SpotLight, PointLight, SpotLight, SpotLight, SpotLight, PointLight
+	};
+
+	static const bool LightEnabled[8] = {
+		false, false, false, false, true, false, false, false
+	};
+
+	const int numLights = 8;
+	float radius = 8.0f;
+	float offset = 2.0f * 3.1415f / numLights;
+	for (int i = 0; i < numLights; ++i)
+	{
+		Light light;
+		light.Enabled = static_cast<int>(LightEnabled[i]);
+		light.LightType = LightTypes[i];
+		Vector col = Vector(1,0,1,1);//((i + 1) % 3, (i + 1) % 2, (i + 1), 1);
+		light.Color = Float4(col);
+		light.SpotAngle = 45.0f * 3.1415f / 180.f;
+		light.ConstantAttenuation = 0.5f;
+		light.LinearAttenuation = 0.08f;
+		light.QuadraticAttenuation = 0.0f;
+		Vector LightPosition = Vector(std::sin(offset * i) * radius, 9.0f, std::cos(offset * i) * radius, 1.0f);
+		light.Position = LightPosition;
+		Vector LightDirection(-LightPosition.f[0], -LightPosition.f[1], -LightPosition.f[2], 0.0f);
+		LightDirection = LightDirection.Normalized3();
+		light.Direction = LightDirection;
+		mLight->Lights[i] = light;
+		//printf("Light %d pos: [%f, %f, %f]\n", i, LightPosition.f[0], LightPosition.f[1], LightPosition.f[2]);
+		//printf("Light %d dir: [%f, %f, %f]\n", i, LightDirection.f[0], LightDirection.f[1], LightDirection.f[2]);
+
+		if (light.Enabled) {
+			std::shared_ptr<MaterialProperties> lightMat = std::make_shared<MaterialProperties>();
+			lightMat->mMaterial.mEmissive = light.Color;
+			if (light.LightType == LightType::PointLight)
+			{
+				mModels.push_back(std::make_unique<Model>());
+				mModels.back()->LoadIcoSphere(1.f, 2);
+				mModels.back()->Init(mD3d->GetDevice());
+				mModels.back()->SetPosition(LightPosition);
+
+				mMaterialProperties.push_back(lightMat);
+				mModels.back()->mMat = mMaterialProperties.back();
+			}
+			else if (light.LightType == LightType::SpotLight)
+			{
+				mModels.push_back(std::make_unique<Model>());
+				mModels.back()->LoadPyramid({ 1.f, 1.f, 1.f });
+				mModels.back()->Init(mD3d->GetDevice());
+				mModels.back()->SetPosition(LightPosition);
+
+				mMaterialProperties.push_back(lightMat);
+				mModels.back()->mMat = mMaterialProperties.back();
+
+				Vector vec(0, -1, 0);
+				float cos = Vector::Dot3(vec, LightDirection);
+				float sin = sqrt(1.f - (cos*cos));
+				Vector axis = Vector::Cross3(LightDirection, vec);
+				float angle = atan(sin / cos);
+				mModels.back()->mRot = Matrix::MakeRotationNormal(axis, angle);
+			}
+		}
+	}
 
 	return true;
 }
 
 bool Graphics::Frame()
 {
-	static float rotation = 0.0f;
-
-
-	// Update the rotation variable each frame.
-	rotation += 3.1415f * 0.005f;
-	if (rotation > 360.0f)
-	{
-		rotation -= 360.0f;
-	}
-
 	// Render the graphics scene.
-	return RenderWithRotation(rotation);
+	return Render();
 }
 
 void Graphics::MoveCamera(float x, float y, double delta, Camera::Move dir)
@@ -100,54 +215,16 @@ void Graphics::ZoomCamera(float z)
 	mD3d->ChangeFoV(z);
 	mD3d->RecalculateProjectionMatrix();
 }
-/*
+
 bool Graphics::Render()
-{
-	// Clear the buffers to begin the scene.
-	mD3d->BeginScene(Vector(0.f, 0.f, 0.f, 1.f));
-
-	// Generate the view matrix based on the camera's position.
-	//mCamera->RecalculateMatrix();
-
-	// Get the world, view, and projection matrices from the camera and d3d objects.
-	Matrix viewMatrix = mCamera->GetViewMatrix();
-	Matrix worldMatrix = mD3d->GetWorldMatrix();
-	Matrix projectionMatrix = mD3d->GetProjectionMatrix();
-
-	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	for (auto &i : mModels)
-	{
-		i.Bind(mD3d->GetDeviceContext());
-
-	}
-	//mModel->Bind(mD3d->GetDeviceContext());
-
-	// Render the model using the color shader.
-	bool result = static_cast<TextureShader*>(mShader.get())->Render(mD3d->GetDeviceContext(), mModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, mModel->GetTexture()->GetShaderResourceView());
-	if (!result)
-	{
-		return false;
-	}
-
-	// Present the rendered scene to the screen.
-	mD3d->EndScene();
-
-	return true;
-}
-*/
-
-bool Graphics::RenderWithRotation(float rot)
 {
 	// Clear the buffers to begin the scene.
 	mD3d->BeginScene(Vector(0.0f, 0.0f, 0.0f, 1.0f));
 
-	// Generate the view matrix based on the camera's position.
-	//mCamera->RecalculateMatrix();
-
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	Matrix viewMatrix = mCamera->GetViewMatrix();
 	Matrix projectionMatrix = mD3d->GetProjectionMatrix();
-	Matrix worldMatrix;//Matrix::MakeRotationNormal(Vector(0.f, 1.f, 0.f), rot);
+	Matrix worldMatrix;
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	for (auto &i : mModels)
@@ -155,18 +232,10 @@ bool Graphics::RenderWithRotation(float rot)
 		i->Bind(mD3d->GetDeviceContext());
 		Vector pos = i->GetPosition();
 
-		mShader->Render(mD3d->GetDeviceContext(), i->GetIndexCount(), Matrix::MakeTranslation3(pos), viewMatrix, projectionMatrix,
-			i->GetTexture()->GetShaderResourceView(), mLight->GetDirection(), mLight->GetAmbient(), mLight->GetDiffuseColor(), mCamera->GetPosition(), mLight->GetSpecularColor(), mLight->GetSpecularPower());
+		mShader->Render(mD3d->GetDeviceContext(), i->GetIndexCount(), i->mRot * Matrix::MakeTranslation3(pos), viewMatrix, projectionMatrix,
+			mCamera->GetPosition(), *mLight.get(), i->mMat.get());
 	}
 
-	// Render the model using the color shader.
-	/*bool result = mShader->Render(mD3d->GetDeviceContext(), mModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		mModel->GetTexture()->GetShaderResourceView(), mLight->GetDirection(), mLight->GetAmbient(), mLight->GetDiffuseColor(), mCamera->GetPosition(), mLight->GetSpecularColor(), mLight->GetSpecularPower());
-	if (!result)
-	{
-		return false;
-	}
-	*/
 	// Present the rendered scene to the screen.
 	mD3d->EndScene();
 

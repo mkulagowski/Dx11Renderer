@@ -153,6 +153,9 @@
     <ClInclude Include="src\Direct3d.hpp" />
     <ClInclude Include="src\DxObject.hpp" />
     <ClInclude Include="src\File.hpp" />
+    <ClInclude Include="src\Float2.hpp" />
+    <ClInclude Include="src\Float3.hpp" />
+    <ClInclude Include="src\Float4.hpp" />
     <ClInclude Include="src\Graphics.hpp" />
     <ClInclude Include="src\IcosphereCreator.hpp" />
     <ClInclude Include="src\Image.hpp" />
@@ -160,6 +163,7 @@
     <ClInclude Include="src\Light.hpp" />
     <ClInclude Include="src\LightShader.hpp" />
     <ClInclude Include="src\Manager.hpp" />
+    <ClInclude Include="src\Material.hpp" />
     <ClInclude Include="src\Matrix.hpp" />
     <ClInclude Include="src\Model.hpp" />
     <ClInclude Include="src\Quaternion.hpp" />
@@ -235,6 +239,44 @@
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)src\shaders\light_vs.hpp</HeaderFileOutput>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">gLightVSArray</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">gLightVSArray</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">gLightVSArray</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)src\shaders\light_vs.hpp</HeaderFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)src\shaders\light_vs.hpp</HeaderFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)src\shaders\light_vs.hpp</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="src\shaders\TexturedLitPS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">gMatPSArray</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">gMatPSArray</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">gMatPSArray</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">gMatPSArray</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)src\shaders\mat_ps.hpp</HeaderFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)src\shaders\mat_ps.hpp</HeaderFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)src\shaders\mat_ps.hpp</HeaderFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)src\shaders\mat_ps.hpp</HeaderFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\TexturedLitVS.hlsl">
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">gMatVSArray</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">gMatVSArray</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">gMatVSArray</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">gMatVSArray</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)src\shaders\mat_vs.hpp</HeaderFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)src\shaders\mat_vs.hpp</HeaderFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)src\shaders\mat_vs.hpp</HeaderFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)src\shaders\mat_vs.hpp</HeaderFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="src\shaders\TexturePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

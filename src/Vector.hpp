@@ -122,6 +122,20 @@ public:
 		return Vector(*this) -= b;
 	}
 
+	Vector operator/= (float b)
+	{
+		f[0] /= b;
+		f[1] /= b;
+		f[2] /= b;
+		f[3] /= b;
+		return *this;
+	}
+
+	Vector operator/ (float b) const
+	{
+		return Vector(*this) /= b;
+	}
+
 	Vector& operator-= (const Vector& b)
 	{
 		f[0] -= b.f[0];
@@ -131,82 +145,4 @@ public:
 		return *this;
 	}
 
-};
-
-class Float2 {
-public:
-	float f[2];
-
-	Float2(float f1, float f2)
-		: f{ f1, f2 }
-	{};
-
-	Float2(int f1, int f2)
-		: f{ static_cast<float>(f1), static_cast<float>(f2) }
-	{};
-
-	Float2()
-		: Float2(0.f, 0.f)
-	{};
-
-	Float2(Vector v)
-		: Float2(v.f[0], v.f[1])
-	{};
-
-	Float2& operator*= (const float& b)
-	{
-		f[0] *= b;
-		f[1] *= b;
-		return *this;
-	}
-};
-
-class Float3 {
-public:
-	float f[3];
-
-	Float3(float f1, float f2, float f3)
-		: f{ f1, f2, f3 }
-	{};
-
-	Float3(int f1, int f2, int f3)
-		: f{ static_cast<float>(f1), static_cast<float>(f2), static_cast<float>(f3) }
-	{};
-
-	Float3()
-		: Float3(0.f, 0.f, 0.f)
-	{};
-
-	Float3(Vector v)
-		: Float3(v.f[0], v.f[1], v.f[2])
-	{};
-
-	Float3& operator*= (const float& b)
-	{
-		f[0] *= b;
-		f[1] *= b;
-		f[2] *= b;
-		return *this;
-	}
-};
-
-class Float4 {
-public:
-	float f[4];
-
-	Float4(float f1, float f2, float f3, float f4)
-		: f{ f1, f2, f3, f4 }
-	{};
-
-	Float4(int f1, int f2, int f3, int f4)
-		: f{ static_cast<float>(f1), static_cast<float>(f2), static_cast<float>(f3), static_cast<float>(f4) }
-	{};
-
-	Float4()
-		: Float4(0.f, 0.f, 0.f, 0.f)
-	{};
-
-	Float4(Vector v)
-		: Float4(v.f[0], v.f[1], v.f[2], v.f[3])
-	{};
 };

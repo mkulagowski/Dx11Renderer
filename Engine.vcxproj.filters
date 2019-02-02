@@ -90,6 +90,18 @@
     <ClInclude Include="src\IcosphereCreator.hpp">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\Material.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Float3.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Float4.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Float2.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp">
@@ -158,6 +170,12 @@
       <Filter>Header Files\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="src\shaders\LightPS.hlsl">
+      <Filter>Header Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shaders\TexturedLitPS.hlsl">
+      <Filter>Header Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shaders\TexturedLitVS.hlsl">
       <Filter>Header Files\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

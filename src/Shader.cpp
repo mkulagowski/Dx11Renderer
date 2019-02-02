@@ -92,9 +92,19 @@ bool Shader::SetShaderParameters(ID3D11DeviceContext *deviceContext, Matrix worl
 
 	// Copy the matrices into the constant buffer.
 	// Transpose the matrices to prepare them for the shader.
-	dataPtr->world = worldMatrix.Transposed();
-	dataPtr->view = viewMatrix.Transposed();
-	dataPtr->projection = projectionMatrix.Transposed();
+	Matrix view = viewMatrix;// .Transposed();
+	Matrix proj = projectionMatrix;// .Transposed();
+	Matrix wrl = worldMatrix;// .Transposed();
+	Matrix viewProjectionMatrix1 = (wrl * view) * proj;
+	Matrix viewProjectionMatrix2 = wrl * view * proj;
+	Matrix viewProjectionMatrix3 = proj * view * wrl;
+	Matrix viewProjectionMatrix4 = (proj * view) * wrl;
+	Matrix viewProjectionMatrix5 = proj * (view * wrl);
+	dataPtr->world = wrl;//.Transposed();
+	dataPtr->inverseTransposeWorld = wrl.Inverted().Transposed();
+	dataPtr->proj = proj;
+	dataPtr->view = view;
+	dataPtr->worldViewProjection = (wrl * view) * proj;// .Transposed();
 
 	// Unlock the constant buffer.
 	deviceContext->Unmap(mMatrixBuffer.get(), 0);

@@ -1,5 +1,6 @@
 #include "Direct3d.hpp"
 #include <vector>
+#include "Float4.hpp"
 Direct3d::Direct3d()
 {
 }

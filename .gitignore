@@ -1,5 +1,6 @@
 Bin
 .vs
 src/shaders/*.hpp
+src/resources
 *.vcxproj.user
-*\*.vcxproj.user
+*/*.vcxproj.user

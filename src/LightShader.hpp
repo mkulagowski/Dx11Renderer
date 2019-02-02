@@ -1,5 +1,8 @@
 
 #include "TextureShader.hpp"
+#include "Material.hpp"
+#include "Light.hpp"
+#include "Float3.hpp"
 
 class LightShader : public TextureShader
 {
@@ -9,19 +12,12 @@ public:
 		Float3 cameraPosition;
 		float padding;
 	};
-	struct LightBufferType
-	{
-		Float4 ambientColor;
-		Float4 diffuseColor;
-		Float3 lightDirection;
-		float specularPower;
-		Float4 specularColor;
-	};
+	
 	LightShader();
 	~LightShader();
 
 	bool Render(ID3D11DeviceContext* deviceContext, int indexCount, Matrix worldMatrix, Matrix viewMatrix,
-		Matrix projectionMatrix, ID3D11ShaderResourceView* texture, Vector lightDirection, Vector ambientColor, Vector diffuseColor, Vector cameraPosition, Vector specularColor, float specularPower);
+		Matrix projectionMatrix, Vector camera, LightBufferType& light, MaterialProperties* mat);
 
 private:
 	bool InitializeShader(ID3D11Device* device, HWND hwnd) override;
@@ -31,8 +27,9 @@ private:
 	bool CreateTextureSampler(ID3D11Device* device);
 	bool CreateCBuffers(ID3D11Device* device);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, Matrix, Matrix, Matrix, ID3D11ShaderResourceView*, Vector, Vector, Vector, Vector cameraPosition, Vector specularColor, float specularPower);
+	bool SetShaderParameters(ID3D11DeviceContext*, Matrix, Matrix, Matrix, Vector cameraPosition, LightBufferType& light, MaterialProperties* mat);
 	
 	DxObject<ID3D11Buffer> mLightBuffer;
 	DxObject<ID3D11Buffer> mCameraBuffer;
+	DxObject<ID3D11Buffer> mMaterialBuffer;
 };

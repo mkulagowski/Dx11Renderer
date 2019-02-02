@@ -10,8 +10,10 @@ public:
 	struct MatrixBufferType
 	{
 		Matrix world;
+		Matrix inverseTransposeWorld;
+		Matrix worldViewProjection;
+		Matrix proj;
 		Matrix view;
-		Matrix projection;
 	};
 
 	Shader();

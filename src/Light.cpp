@@ -1,3 +1,4 @@
+/*
 #include "Light.hpp"
 
 Light::Light()
@@ -57,3 +58,5 @@ float Light::GetSpecularPower()
 {
 	return mSpecularPower;
 }
+*/
+

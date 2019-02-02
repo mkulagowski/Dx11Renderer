@@ -9,6 +9,7 @@
 #include "Model.hpp"
 #include "LightShader.hpp"
 #include "Light.hpp"
+#include "Material.hpp"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -27,12 +28,14 @@ public:
 	void ZoomCamera(float z);
 
 private:
-	//bool Render();
-	bool RenderWithRotation(float rot);
+	bool Render();
 
 	std::unique_ptr<Direct3d> mD3d;
 	std::unique_ptr<Camera> mCamera;
 	std::vector<std::unique_ptr<Model>> mModels;
 	std::unique_ptr<LightShader> mShader;
-	std::unique_ptr<Light> mLight;
+	std::unique_ptr<LightBufferType> mLight;
+
+	std::unique_ptr<MaterialProperties> mTextureMaterial;
+	std::vector<std::shared_ptr<MaterialProperties>> mMaterialProperties;
 };
