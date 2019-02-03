@@ -116,7 +116,7 @@ bool Manager::frame(double delta)
 		anyKey = true;
 	}
 
-	mGraphics->ZoomCamera(mInput->GetMouseWheel() * delta * 0.1f);
+	mGraphics->ZoomCamera(static_cast<float>(mInput->GetMouseWheel() * delta * 0.1f));
 
 	if (!anyKey)
 		mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::None);
@@ -233,9 +233,9 @@ void Manager::shutdownWindows()
 
 LRESULT CALLBACK Manager::handleMessage(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
-	switch (umsg)
+	/*switch (umsg)
 	{
-		/*
+		
 		// Check if a key has been pressed on the keyboard.
 		case WM_KEYDOWN:
 		{
@@ -251,13 +251,14 @@ LRESULT CALLBACK Manager::handleMessage(HWND hwnd, UINT umsg, WPARAM wparam, LPA
 			mInput->KeyUp((unsigned int)wparam);
 			return 0;
 		}
-		*/
+		
 		// Any other messages send to the default message handler as our application won't make use of them.
 		default:
 		{
 			return DefWindowProc(hwnd, umsg, wparam, lparam);
 		}
-	}
+	}*/
+	return DefWindowProc(hwnd, umsg, wparam, lparam);
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)

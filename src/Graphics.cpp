@@ -1,4 +1,5 @@
 #include "Graphics.hpp"
+#include "MathUtils.hpp"
 
 Graphics::Graphics()
 {
@@ -57,7 +58,7 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 	// brown
 	std::shared_ptr<MaterialProperties> brownMaterial = std::make_shared<MaterialProperties>();
 	brownMaterial->mMaterial.mDiffuse = Float4(0.545f, 0.27f, 0.0745f, 1.0f);
-	brownMaterial->mMaterial.mSpecular = Float4((Vector(0.545f, 0.27f, 0.0745f, 1.0f) * 2).Normalized3());
+	brownMaterial->mMaterial.mSpecular = (Vector(0.545f, 0.27f, 0.0745f, 1.0f) * 2).Normalized3().ToFloat4();
 	brownMaterial->mMaterial.mAmbient = Float4(0.2725f, 0.135f, 0.03725f, 1.0f);
 	brownMaterial->mMaterial.mSpecularPower = 20.0f;
 	mMaterialProperties.push_back(brownMaterial);
@@ -77,7 +78,7 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 	mModels.back()->LoadCube({ 2.f, 4.f, 2.f });
 	mModels.back()->Init(mD3d->GetDevice());
 	mModels.back()->SetPosition(Vector(4, 4, 4, 0));
-	mModels.back()->SetRotation(Matrix::MakeRotationNormal(Vector(0,1,0), 45.f  * 3.1415f / 180.f));
+	mModels.back()->SetRotation(Matrix::MakeRotationNormal(Vector(0,1,0), RADS(45.f)));
 	mModels.back()->SetMaterial(mMaterialProperties[3]);
 
 
@@ -106,21 +107,21 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 	mModels.push_back(std::make_unique<Model>());
 	mModels.back()->LoadPlane(10.f, 10.f);
 	mModels.back()->Init(mD3d->GetDevice());
-	mModels.back()->SetRotation(Matrix::MakeRotationNormal(Vector(1, 0, 0), 90.f  * 3.1415f / 180.f));
+	mModels.back()->SetRotation(Matrix::MakeRotationNormal(Vector(1, 0, 0), RADS(90.f)));
 	mModels.back()->SetPosition(Vector(0, 10, 10, 0));
 	mModels.back()->SetMaterial(mMaterialProperties[1]);
 
 	mModels.push_back(std::make_unique<Model>());
 	mModels.back()->LoadPlane(10.f, 10.f);
 	mModels.back()->Init(mD3d->GetDevice());
-	mModels.back()->SetRotation(Matrix::MakeRotationNormal(Vector(1, 0, 0), 90.f  * 3.1415f / 180.f) * Matrix::MakeRotationNormal(Vector(0, 1, 0), 90.f  * 3.1415f / 180.f));
+	mModels.back()->SetRotation(Matrix::MakeRotationNormal(Vector(1, 0, 0), RADS(90.f)) * Matrix::MakeRotationNormal(Vector(0, 1, 0), RADS(90.f)));
 	mModels.back()->SetPosition(Vector(-10, 10, 0, 0));
 	mModels.back()->SetMaterial(mMaterialProperties[1]);
 
 	mModels.push_back(std::make_unique<Model>());
 	mModels.back()->LoadPlane(10.f, 10.f);
 	mModels.back()->Init(mD3d->GetDevice());
-	mModels.back()->SetRotation(Matrix::MakeRotationNormal(Vector(1, 0, 0), 90.f  * 3.1415f / 180.f) * Matrix::MakeRotationNormal(Vector(0, 1, 0), -90.f  * 3.1415f / 180.f));
+	mModels.back()->SetRotation(Matrix::MakeRotationNormal(Vector(1, 0, 0), RADS(90.f)) * Matrix::MakeRotationNormal(Vector(0, 1, 0), RADS(-90.f)));
 	mModels.back()->SetPosition(Vector(10, 10, 0, 0));
 	mModels.back()->SetMaterial(mMaterialProperties[1]);
 
@@ -142,23 +143,23 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 
 	const int numLights = 8;
 	float radius = 8.0f;
-	float offset = 2.0f * 3.1415f / numLights;
+	float offset = 2.0f * PI / numLights;
 	for (int i = 0; i < numLights; ++i)
 	{
 		Light light;
 		light.Enabled = static_cast<int>(LightEnabled[i]);
 		light.LightType = LightTypes[i];
 		Vector col = Vector(1,0,1,1);//((i + 1) % 3, (i + 1) % 2, (i + 1), 1);
-		light.Color = Float4(col);
-		light.SpotAngle = 45.0f * 3.1415f / 180.f;
+		light.Color = col.ToFloat4();
+		light.SpotAngle = RADS(45.f);
 		light.ConstantAttenuation = 0.5f;
 		light.LinearAttenuation = 0.08f;
 		light.QuadraticAttenuation = 0.0f;
 		Vector LightPosition = Vector(std::sin(offset * i) * radius, 9.0f, std::cos(offset * i) * radius, 1.0f);
-		light.Position = LightPosition;
+		light.Position = LightPosition.ToFloat4();
 		Vector LightDirection(-LightPosition.f[0], -LightPosition.f[1], -LightPosition.f[2], 0.0f);
 		LightDirection = LightDirection.Normalized3();
-		light.Direction = LightDirection;
+		light.Direction = LightDirection.ToFloat4();
 		mLight->Lights[i] = light;
 		//printf("Light %d pos: [%f, %f, %f]\n", i, LightPosition.f[0], LightPosition.f[1], LightPosition.f[2]);
 		//printf("Light %d dir: [%f, %f, %f]\n", i, LightDirection.f[0], LightDirection.f[1], LightDirection.f[2]);

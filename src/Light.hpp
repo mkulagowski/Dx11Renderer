@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector.hpp"
+#include "MathUtils.hpp"
 
 enum LightType
 {
@@ -15,7 +16,7 @@ struct Light
 		: Position(0.0f, 0.0f, 0.0f, 1.0f)
 		, Direction(0.0f, 0.0f, 1.0f, 0.0f)
 		, Color(1.0f, 1.0f, 1.0f, 1.0f)
-		, SpotAngle(3.1415f / 2.f)
+		, SpotAngle(PI2)
 		, ConstantAttenuation(1.0f)
 		, LinearAttenuation(0.0f)
 		, QuadraticAttenuation(0.0f)

@@ -1,6 +1,8 @@
 #include "Direct3d.hpp"
 #include <vector>
+#include "MathUtils.hpp"
 #include "Float4.hpp"
+
 Direct3d::Direct3d()
 {
 }
@@ -298,7 +300,7 @@ bool Direct3d::Init(uint16_t screenWidth, uint16_t screenHeight, bool vsync, HWN
 	mScreenHeight = screenHeight;
 	mScreenNear = screenNear;
 	mScreenFar = screenDepth;
-	mFoV = 3.14f / 4.0f;
+	mFoV = PI4;
 
 	// Get video card info (refresh rate, description, memory)
 	if (!InitVideoCardInfo())
@@ -363,7 +365,7 @@ void Direct3d::Shutdown()
 
 void Direct3d::BeginScene(Vector clearColor)
 {
-	Float4 color(clearColor);
+	Float4 color = clearColor.ToFloat4();
 
 	// Clear the back buffer.
 	mDeviceContext.get()->ClearRenderTargetView(mRenderTargetView.get(), reinterpret_cast<const float*>(&color));

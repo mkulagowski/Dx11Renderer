@@ -2,6 +2,7 @@
 
 #include "model_obj/model_obj.h"
 #include "IcosphereCreator.hpp"
+#include "MathUtils.hpp"
 
 Model::Model()
 {
@@ -72,7 +73,7 @@ void Model::LoadCube(Vector halfSize)
 	mVertices.push_back({ Float3( 1, -1,  1) , Float2(1, 1) , Float3( 0, -1,  0) });
 
 	for (auto &i : mVertices)
-		i.position = Float3(Vector(i.position.f[0], i.position.f[1], i.position.f[2]) * halfSize);
+		i.position = (Vector(i.position.f[0], i.position.f[1], i.position.f[2]) * halfSize).ToFloat3();
 
 
 	mIndices.clear();
@@ -130,9 +131,9 @@ void Model::LoadIcoSphere(float radius, uint8_t subdivisions)
 	{
 		Vector normal = i.Normalized3();
 		mVertices.push_back({
-			Float3(i * radius),
-			Float2(asinf(normal.f[0]) / 3.1415f + 0.5f, asinf(normal.f[1]) / 3.1415f + 0.5f),
-			Float3(normal)
+			(i * radius).ToFloat3(),
+			Float2(asinf(normal.f[0]) / PI + 0.5f, asinf(normal.f[1]) / PI + 0.5f),
+			normal.ToFloat3()
 			});
 	}
 
@@ -160,13 +161,13 @@ void Model::LoadPyramid(Vector halfSize)
 	{
 		Vector edge1 = v2 - v1;
 		Vector edge2 = v3 - v1;
-		return Vector::Cross3(edge1, edge2).Normalized3();
+		return Vector::Cross3(edge1, edge2).Normalized3().ToFloat3();
 	};
 
-	Float3 simpleNormB(simpleNormal(Vector(x, -y, z), Vector(-x, -y, z), Vector(0, y, 0)));
-	Float3 simpleNormL(simpleNormal(Vector(-x, -y, z), Vector(-x, -y, -z), Vector(0, y, 0)));
-	Float3 simpleNormF(simpleNormal(Vector(-x, -y, -z), Vector(x, -y, -z), Vector(0, y, 0)));
-	Float3 simpleNormR(simpleNormal(Vector(x, -y, z), Vector(x, -y, z), Vector(0, y, 0)));
+	Float3 simpleNormB(simpleNormal(Vector( x, -y,  z), Vector(-x, -y,  z), Vector(0, y, 0)));
+	Float3 simpleNormL(simpleNormal(Vector(-x, -y,  z), Vector(-x, -y, -z), Vector(0, y, 0)));
+	Float3 simpleNormF(simpleNormal(Vector(-x, -y, -z), Vector( x, -y, -z), Vector(0, y, 0)));
+	Float3 simpleNormR(simpleNormal(Vector( x, -y,  z), Vector( x, -y,  z), Vector(0, y, 0)));
 
 
 	mVertices.push_back({ Float3(0.f,  y, 0.f) , Float2(.0f, .5f) , simpleNormL }); //< top

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector.hpp"
+//#include "Vector.hpp"
 
 class Float4 {
 public:
@@ -18,7 +18,7 @@ public:
 		: Float4(0.f, 0.f, 0.f, 0.f)
 	{};
 
-	Float4(Vector v)
+	/*Float4(Vector v)
 		: Float4(v.f[0], v.f[1], v.f[2], v.f[3])
-	{};
+	{};*/
 };

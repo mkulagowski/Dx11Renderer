@@ -228,7 +228,7 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, Matri
 
 	// Get a pointer to the data in the constant buffer.
 	LightBufferType* dataPtr = (LightBufferType*)mappedResource.pData;
-	dataPtr->EyePosition = cameraPosition;
+	dataPtr->EyePosition = cameraPosition.ToFloat4();
 	dataPtr->GlobalAmbient = light.GlobalAmbient;
 	for (int i = 0; i < 8; i++)
 		dataPtr->Lights[i] = light.Lights[i];

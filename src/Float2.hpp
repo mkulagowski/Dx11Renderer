@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Vector.hpp"
-
 class Float2 {
 public:
 	float f[2];
@@ -17,11 +15,11 @@ public:
 	Float2()
 		: Float2(0.f, 0.f)
 	{};
-
+	/*
 	Float2(Vector v)
 		: Float2(v.f[0], v.f[1])
 	{};
-
+	*/
 	Float2& operator*= (const float& b)
 	{
 		f[0] *= b;

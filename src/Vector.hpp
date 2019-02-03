@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cmath>
+#include "Float3.hpp"
+#include "Float4.hpp"
 
 class alignas(16) Vector {
 public:
@@ -38,6 +40,14 @@ public:
 
 	Vector(float ff)
 		: Vector(ff, ff, ff, ff)
+	{}
+
+	Vector(Float4 ff)
+		: Vector(ff.f[0], ff.f[1], ff.f[2], ff.f[3])
+	{}
+
+	Vector(Float3 ff)
+		: Vector(ff.f[0], ff.f[1], ff.f[2])
 	{}
 
 	Vector()
@@ -88,14 +98,17 @@ public:
 	{
 		return Vector(f[3]);
 	}
+
 	static Vector MulAndAdd(const Vector& a, const Vector& b, const Vector& c)
 	{
 		return a * b + c;
 	}
+
 	Vector operator* (const Vector& b) const
 	{
 		return Vector(*this) *= b;
 	}
+
 	Vector& operator*= (const Vector& b)
 	{
 		f[0] *= b.f[0];
@@ -104,10 +117,12 @@ public:
 		f[3] *= b.f[3];
 		return *this;
 	}
+
 	Vector operator+ (const Vector& b) const
 	{
 		return Vector(*this) += b;
 	}
+
 	Vector& operator+= (const Vector& b)
 	{
 		f[0] += b.f[0];
@@ -145,4 +160,13 @@ public:
 		return *this;
 	}
 
+	Float4 ToFloat4() const
+	{
+		return Float4(f[0], f[1], f[2], f[3]);
+	}
+
+	Float3 ToFloat3() const
+	{
+		return Float3(f[0], f[1], f[2]);
+	}
 };

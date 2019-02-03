@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector.hpp"
+//#include "Vector.hpp"
 
 class Float3 {
 public:
@@ -17,11 +17,11 @@ public:
 	Float3()
 		: Float3(0.f, 0.f, 0.f)
 	{};
-
+	/*
 	Float3(Vector v)
 		: Float3(v.f[0], v.f[1], v.f[2])
 	{};
-
+	*/
 	Float3& operator*= (const float& b)
 	{
 		f[0] *= b;

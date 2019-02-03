@@ -1,9 +1,10 @@
 #include "Camera.hpp"
+#include "MathUtils.hpp"
 
 Camera::Camera()
 	: mPosition(0.f)
 	, mRotation(0.f)
-	, mHAngle(3.14f)
+	, mHAngle(PI)
 	, mVAngle(0.f)
 	, mInitialFoV(45.f)
 {
@@ -56,8 +57,8 @@ void Camera::MoveCamera(float x, float y, double dTime, Camera::Move moveDir)
 {
 	static auto speed = 60.f;
 	static auto mouseSpeed = 0.05f;
-	mHAngle += x * mouseSpeed * dTime;
-	mVAngle -= y * mouseSpeed * dTime;
+	mHAngle += static_cast<float>(x * mouseSpeed * dTime);
+	mVAngle -= static_cast<float>(y * mouseSpeed * dTime);
 
 	//printf("MOUSEX: %f, MOUSEY: %f\n", x, y);
 	//printf("ANGLEX: %f, ANGLEY: %f\n", mHAngle, mVAngle);
@@ -67,9 +68,9 @@ void Camera::MoveCamera(float x, float y, double dTime, Camera::Move moveDir)
 		cos(mVAngle) * cos(mHAngle)
 	);
 	Vector right(
-		sin(mHAngle - 3.14f/2.f),
+		sin(mHAngle - PI2),
 		0,
-		cos(mHAngle - 3.14f/2.f)
+		cos(mHAngle - PI2)
 	);
 
 	Vector up = Vector::Cross3(right, dir);
@@ -77,19 +78,19 @@ void Camera::MoveCamera(float x, float y, double dTime, Camera::Move moveDir)
 	switch (moveDir)
 	{
 	case Camera::Move::Fwd:
-		mPosition += dir *dTime * speed;
+		mPosition += dir * static_cast<float>(dTime * speed);
 		break;
 
 	case Camera::Move::Bwd:
-		mPosition -= dir *dTime * speed;
+		mPosition -= dir * static_cast<float>(dTime * speed);
 		break;
 
 	case Camera::Move::Rt:
-		mPosition -= right * dTime * speed;
+		mPosition -= right * static_cast<float>(dTime * speed);
 		break;
 
 	case Camera::Move::Lt:
-		mPosition += right * dTime * speed;
+		mPosition += right * static_cast<float>(dTime * speed);
 		break;
 
 	default:

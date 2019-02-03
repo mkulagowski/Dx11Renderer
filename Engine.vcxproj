@@ -164,6 +164,7 @@
     <ClInclude Include="src\LightShader.hpp" />
     <ClInclude Include="src\Manager.hpp" />
     <ClInclude Include="src\Material.hpp" />
+    <ClInclude Include="src\MathUtils.hpp" />
     <ClInclude Include="src\Matrix.hpp" />
     <ClInclude Include="src\Model.hpp" />
     <ClInclude Include="src\Quaternion.hpp" />
