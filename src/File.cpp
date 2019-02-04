@@ -33,7 +33,6 @@ bool File::IsOpened() const
 	return mFileHandle != INVALID_HANDLE_VALUE;
 }
 
-// TODO: access sharing flags
 bool File::Open(const std::string& path, AccessMode access, bool overwrite)
 {
 	Close();
@@ -53,7 +52,6 @@ bool File::Open(const std::string& path, AccessMode access, bool overwrite)
 		desiredAccess = GENERIC_READ | GENERIC_WRITE;
 		break;
 	default:
-		//LOG_ERROR("Invalid file access mode");
 		mMode = AccessMode::No;
 		return false;
 	}
@@ -69,7 +67,6 @@ bool File::Open(const std::string& path, AccessMode access, bool overwrite)
 
 	if (mFileHandle == INVALID_HANDLE_VALUE)
 	{
-		//LOG_ERROR("Failed to open file '%s': %s", path.c_str(), GetLastErrorString().c_str());
 		mMode = AccessMode::No;
 		return false;
 	}
@@ -100,7 +97,6 @@ size_t File::Read(void* data, size_t size)
 
 	DWORD read = 0;
 	if (::ReadFile(mFileHandle, data, toRead, &read, 0) == 0)
-		//LOG_ERROR("File read failed: %s", GetLastErrorString().c_str());
 		return 0;
 
 	return static_cast<size_t>(read);
@@ -119,7 +115,6 @@ size_t File::Write(const void* data, size_t size)
 
 	DWORD written = 0;
 	if (::WriteFile(mFileHandle, data, toWrite, &written, 0) == 0)
-		//LOG_ERROR("File write failed: %s", GetLastErrorString().c_str());
 		return 0;
 
 	return static_cast<size_t>(written);
@@ -132,10 +127,7 @@ int64_t File::GetSize() const
 
 	LARGE_INTEGER size;
 	if (::GetFileSizeEx(mFileHandle, &size) == 0)
-	{
-		//LOG_ERROR("GetFileSizeEx failed: %s", GetLastErrorString().c_str());
 		return -1;
-	}
 
 	return static_cast<int64_t>(size.QuadPart);
 }
@@ -158,17 +150,13 @@ bool File::Seek(int64_t pos, SeekMode mode)
 		moveMethod = FILE_END;
 		break;
 	default:
-		//LOG_ERROR("Invalid seek mode");
 		return false;
 	}
 
 	LARGE_INTEGER posLarge;
 	posLarge.QuadPart = static_cast<LONGLONG>(pos);
 	if (::SetFilePointerEx(mFileHandle, posLarge, NULL, moveMethod) == 0)
-	{
-		//LOG_ERROR("File seek failed: %s", GetLastErrorString().c_str());
 		return false;
-	}
 
 	return true;
 }
@@ -181,10 +169,7 @@ int64_t File::GetPos() const
 	LARGE_INTEGER posLarge, pos;
 	posLarge.QuadPart = 0;
 	if (::SetFilePointerEx(mFileHandle, posLarge, &pos, FILE_CURRENT) == 0)
-	{
-		//LOG_ERROR("File seek failed: %s", GetLastErrorString().c_str());
 		return -1;
-	}
 
 	return static_cast<int64_t>(pos.QuadPart);
 }

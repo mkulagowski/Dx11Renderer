@@ -38,10 +38,7 @@ namespace {
 		uint32_t signature = 0;
 		buff->Seek(0);
 		if (sizeof(signature) < buff->Read(&signature, sizeof(signature)))
-		{
-			//LOG_ERROR("Could not read signature from the stream.");
 			return false;
-		}
 
 		buff->Seek(0);
 
@@ -62,38 +59,27 @@ bool Image::OpenPng(std::string path)
 	File inFile(path.c_str(), AccessMode::Read, false);
 	uint8_t signature[PNGSIGSIZE];
 	if (inFile.Read(signature, PNGSIGSIZE) != PNGSIGSIZE)
-	{
-		//LOG_ERROR("Reading PNG signature failed.");
 		return false;
-	}
 
 	// verify png signature
 	if (!png_check_sig(static_cast<png_const_bytep>(signature), PNGSIGSIZE))
-	{
-		//LOG_ERROR("Veryfing PNG signature failed.");
 		return false;
-	}
 
 	// reading struct
 	png_structp pngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!pngPtr)
-	{
-		//LOG_ERROR("Creating PNG structure failed.");
 		return false;
-	}
 
 	// info struct
 	png_infop infoPtr = png_create_info_struct(pngPtr);
 	if (!infoPtr)
 	{
-		//LOG_ERROR("Creating PNG information structure failed.");
 		png_destroy_read_struct(&pngPtr, nullptr, nullptr);
 		return false;
 	}
 
 	if (setjmp(png_jmpbuf(pngPtr)))
 	{
-		//LOG_ERROR("Saving calling environment for long jump in PNG failed.");
 		png_destroy_read_struct(&pngPtr, &infoPtr, nullptr);
 		return false;
 	}
@@ -129,12 +115,9 @@ bool Image::OpenPng(std::string path)
 		png_set_palette_to_rgb(pngPtr);
 		channels = 3;
 
-		//format = ImageFormat::RGB_UByte; //can be tRNS
-
 		// if the image has a transperancy set, convert it to a full Alpha channel
 		if (usingTrnsChunk(pngPtr, infoPtr))
 		{
-			//format = ImageFormat::RGBA_UByte;
 			channels = 4;
 		}
 		break;
@@ -145,40 +128,33 @@ bool Image::OpenPng(std::string path)
 		if (png_get_valid(pngPtr, infoPtr, PNG_INFO_tRNS))
 		{
 			png_set_gray_to_rgb(pngPtr);
-			//format = ImageFormat::RGBA_UByte;
 			channels = 4;
 		}
 		else
 		{
 			png_set_expand_gray_1_2_4_to_8(pngPtr);
-			//format = ImageFormat::A_UByte;
 		}
 		break;
 
 	case PNG_COLOR_TYPE_RGB:
-		//format = ImageFormat::RGB_UByte; //can be tRNS
 
 		// if the image has a transperancy set, convert it to a full Alpha channel
 		if (usingTrnsChunk(pngPtr, infoPtr))
 		{
-			//format = ImageFormat::RGBA_UByte;
 			channels = 4;
 		}
 		break;
 
 	case PNG_COLOR_TYPE_RGBA:
-		//format = ImageFormat::RGBA_UByte;
 		break;
 
 	case PNG_COLOR_TYPE_GA:
 		// Change G->RGB or GA->RGBA
 		png_set_gray_to_rgb(pngPtr);
 		channels = 4;
-		//format = ImageFormat::RGBA_UByte;
 		break;
 
 	default:
-		//LOG_ERROR("PNG color type %d not recognized.", color_type);
 		return false;
 	}
 
@@ -189,11 +165,7 @@ bool Image::OpenPng(std::string path)
 	std::unique_ptr<uint8_t[]> dataPtr(new (std::nothrow) uint8_t[dataSize]);
 
 	if (!rowPtrs.get() || !dataPtr.get())
-	{
-		//LOG_ERROR("Allocating memory for loading PNG image failed.");
-		//img->Release();
 		return false;
-	}
 
 	// row length in bytes
 	const unsigned int stride = imgWidth * bitdepth * channels / 8;
@@ -214,7 +186,6 @@ bool Image::OpenPng(std::string path)
 	mWidth = imgWidth;
 	mHeight = imgHeight;
 	mImage.SetData(dataPtr.get(), dataSize);
-	//bool result = img->SetData(dataPtr.get(), imgWidth, imgHeight, format);
 	png_destroy_read_struct(&pngPtr, &infoPtr, nullptr);
 
 	return true;
