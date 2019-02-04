@@ -1,42 +1,42 @@
 #include "Manager.hpp"
 #include "Timer.hpp"
 
-Manager & Manager::getInstance()
+Manager & Manager::GetInstance()
 {
 	static Manager instance;
 	return instance;
 }
 
-bool Manager::init()
+bool Manager::Init()
 {
 	// Initialize the width and height of the screen to zero before sending the variables into the function.
 	int screenWidth = 0;
 	int screenHeight = 0;
 
 	// Initialize the windows api.
-	initializeWindows(screenWidth, screenHeight);
+	InitializeWindows(screenWidth, screenHeight);
 
 	// Create the input object.  This object will be used to handle reading the keyboard input from the user.
 	mInput = std::make_unique<Input>();
 	if (!mInput->Init(mHinstance, mHwnd, screenWidth, screenHeight))
 		return false;
-	mGraphics = std::make_unique<Graphics>();
 
 	// Initialize the graphics object.
+	mGraphics = std::make_unique<Graphics>();
 	return mGraphics->Init(screenWidth, screenHeight, mHwnd);
 }
 
-void Manager::run()
+void Manager::Run()
 {
 	MSG msg;
-	bool done, result;
+	bool result;
 	Timer<double, std::micro> timer;
 
 	// Initialize the message structure.
 	ZeroMemory(&msg, sizeof(MSG));
 
 	// Loop until there is a quit message from the window or the user.
-	done = false;
+	bool done = false;
 	timer.Start();
 	while (!done)
 	{
@@ -55,17 +55,14 @@ void Manager::run()
 		{
 			double delta = timer.Stop().count() / 1000000;
 			// Otherwise do the frame processing.
-			result = frame(delta);
+			result = Frame(delta);
 			if (!result)
 				done = true;
 		}
 
 		if (mInput->IsKeyDown(DIK_ESCAPE))
 			done = true;
-
 	}
-
-	return;
 }
 
 Manager::Manager()
@@ -74,13 +71,11 @@ Manager::Manager()
 
 Manager::~Manager()
 {
-	shutdownWindows();
+	ShutdownWindows();
 }
-#include <cstdio>
-bool Manager::frame(double delta)
-{
-	bool result;
 
+bool Manager::Frame(double delta)
+{
 	mInput->ProcessInput();
 	
 	// Check if the user pressed escape and wants to exit the application.
@@ -90,7 +85,6 @@ bool Manager::frame(double delta)
 	}
 
 	Float2 mouse = mInput->GetMouseLocation();
-	//printf("MOUSEX: %f, MOUSEY: %f\n", mouse.f[0], mouse.f[1]);
 	bool anyKey = false;
 	if (mInput->IsKeyDown(DIK_UP) || mInput->IsKeyDown(DIK_W))
 	{
@@ -120,22 +114,13 @@ bool Manager::frame(double delta)
 
 	if (!anyKey)
 		mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::None);
+	
 	// Do the frame processing for the graphics object.
-	result = mGraphics->Render();
-	if (!result)
-	{
-		return false;
-	}
-
-	return true;
+	return mGraphics->Render();
 }
 
-void Manager::initializeWindows(int &screenWidth, int &screenHeight)
+void Manager::InitializeWindows(int &screenWidth, int &screenHeight)
 {
-	WNDCLASSEX wc;
-	DEVMODE dmScreenSettings;
-	int posX, posY;
-
 	// Get the instance of this application.
 	mHinstance = GetModuleHandle(NULL);
 
@@ -143,6 +128,7 @@ void Manager::initializeWindows(int &screenWidth, int &screenHeight)
 	mApplicationName = "Engine";
 
 	// Setup the windows class with default settings.
+	WNDCLASSEX wc;
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = WndProc;
 	wc.cbClsExtra = 0;
@@ -164,9 +150,11 @@ void Manager::initializeWindows(int &screenWidth, int &screenHeight)
 	screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
 	// Setup the screen settings depending on whether it is running in full screen or in windowed mode.
+	int posX, posY;
 	if (FULL_SCREEN)
 	{
 		// If full screen set the screen to maximum size of the users desktop and 32bit.
+		DEVMODE dmScreenSettings;
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
 		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
 		dmScreenSettings.dmPelsWidth = (unsigned long)screenWidth;
@@ -203,11 +191,9 @@ void Manager::initializeWindows(int &screenWidth, int &screenHeight)
 
 	// Hide the mouse cursor.
 	ShowCursor(false);
-
-	return;
 }
 
-void Manager::shutdownWindows()
+void Manager::ShutdownWindows()
 {
 	if (mHwnd != NULL)
 	{
@@ -231,36 +217,6 @@ void Manager::shutdownWindows()
 	return;
 }
 
-LRESULT CALLBACK Manager::handleMessage(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
-{
-	/*switch (umsg)
-	{
-		
-		// Check if a key has been pressed on the keyboard.
-		case WM_KEYDOWN:
-		{
-			// If a key is pressed send it to the input object so it can record that state.
-			mInput->KeyDown((unsigned int)wparam);
-			return 0;
-		}
-
-		// Check if a key has been released on the keyboard.
-		case WM_KEYUP:
-		{
-			// If a key is released then send it to the input object so it can unset the state for that key.
-			mInput->KeyUp((unsigned int)wparam);
-			return 0;
-		}
-		
-		// Any other messages send to the default message handler as our application won't make use of them.
-		default:
-		{
-			return DefWindowProc(hwnd, umsg, wparam, lparam);
-		}
-	}*/
-	return DefWindowProc(hwnd, umsg, wparam, lparam);
-}
-
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
 	switch (umessage)
@@ -277,7 +233,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 		// All other messages pass to the message handler in the system class.
 		default:
 		{
-			return Manager::getInstance().handleMessage(hwnd, umessage, wparam, lparam);
+			DefWindowProc(hwnd, umessage, wparam, lparam);
 		}
 	}
 }

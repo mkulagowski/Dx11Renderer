@@ -10,18 +10,17 @@
 class Manager
 {
 public:
-	static Manager& getInstance();
+	static Manager& GetInstance();
 
-	bool init();
-	void run();
-	LRESULT CALLBACK handleMessage(HWND, UINT, WPARAM, LPARAM);
+	bool Init();
+	void Run();
 
 private:
 	Manager();
 	~Manager();
-	bool frame(double delta);
-	void initializeWindows(int&, int&);
-	void shutdownWindows();
+	bool Frame(double delta);
+	void InitializeWindows(int &screenWidth, int &screenHeight);
+	void ShutdownWindows();
 
 	LPCSTR mApplicationName;
 	HINSTANCE mHinstance;

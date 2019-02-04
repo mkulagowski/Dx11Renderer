@@ -2,6 +2,6 @@
 
 int main()
 {
-	if (Manager::getInstance().init())
-		Manager::getInstance().run();
+	if (Manager::GetInstance().Init())
+		Manager::GetInstance().Run();
 }
