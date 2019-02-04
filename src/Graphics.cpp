@@ -1,6 +1,10 @@
 #include "Graphics.hpp"
 #include "MathUtils.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_dx11.h"
+
 Graphics::Graphics()
 {
 }
@@ -8,7 +12,7 @@ Graphics::Graphics()
 Graphics::~Graphics()
 {
 }
-#include <cstdio>
+
 bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 {
 	// Create the Direct3D object.
@@ -21,6 +25,21 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 		MessageBox(hwnd, "Could not initialize Direct3D", "Error", MB_OK);
 		return false;
 	}
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	ImGui_ImplWin32_Init(hwnd);
+	ImGui_ImplDX11_Init(mD3d->GetDevice(), mD3d->GetDeviceContext());
+
+
+
+
+
+
 
 	mCamera = std::make_unique<Camera>(
 		Vector(0.f, 1.f, -55.f),	//< Camera position
@@ -161,8 +180,6 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 		LightDirection = LightDirection.Normalized3();
 		light.Direction = LightDirection.ToFloat4();
 		mLight->Lights[i] = light;
-		//printf("Light %d pos: [%f, %f, %f]\n", i, LightPosition.f[0], LightPosition.f[1], LightPosition.f[2]);
-		//printf("Light %d dir: [%f, %f, %f]\n", i, LightDirection.f[0], LightDirection.f[1], LightDirection.f[2]);
 
 		if (light.Enabled) {
 			std::shared_ptr<MaterialProperties> lightMat = std::make_shared<MaterialProperties>();
@@ -211,6 +228,11 @@ void Graphics::ZoomCamera(float z)
 	mD3d->RecalculateProjectionMatrix();
 }
 
+LightBufferType * Graphics::GetLight() const
+{
+	return mLight.get();
+}
+
 bool Graphics::Render()
 {
 	// Clear the buffers to begin the scene.
@@ -225,6 +247,8 @@ bool Graphics::Render()
 			mCamera->GetPosition(), *mLight.get(), i->GetMaterial());
 	}
 
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	// Present the rendered scene to the screen.
 	mD3d->EndScene();
 

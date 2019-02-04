@@ -337,12 +337,7 @@ bool Direct3d::Init(uint16_t screenWidth, uint16_t screenHeight, bool vsync, HWN
 	// Create the viewport.
 	mDeviceContext.get()->RSSetViewports(1, &viewport);
 
-	// Setup the projection matrix.
-	//float fieldOfView = 3.1415f / 4.0f;
-	//float screenAspect = mScreenWidth / mScreenHeight;
-
 	// Create the projection matrix for 3D rendering.
-	//mProjectionMatrix = Matrix::MakePerspective(screenAspect, mFoV, mScreenFar, mScreenNear);
 	RecalculateProjectionMatrix();
 
 	// Initialize the world matrix to the identity matrix.

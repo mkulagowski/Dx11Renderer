@@ -19,6 +19,7 @@ private:
 	Manager();
 	~Manager();
 	bool Frame(double delta);
+	bool FrameUI();
 	void InitializeWindows(int &screenWidth, int &screenHeight);
 	void ShutdownWindows();
 

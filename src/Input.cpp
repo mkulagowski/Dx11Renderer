@@ -13,6 +13,8 @@ DxObject<IDirectInputDevice8>::~DxObject()
 }
 
 Input::Input()
+	: mScreenHeight(0)
+	, mScreenWidth(0)
 {
 }
 
@@ -22,9 +24,6 @@ Input::~Input()
 
 bool Input::Init(HINSTANCE hinst, HWND hwnd, unsigned int screenWidth, unsigned int screenHeight)
 {
-	mMouseY = 0.f;
-	mMouseX = 0.f;
-	mMouseZ = 0.f;
 	mScreenWidth = screenWidth;
 	mScreenHeight = screenHeight;
 
@@ -73,19 +72,24 @@ bool Input::Init(HINSTANCE hinst, HWND hwnd, unsigned int screenWidth, unsigned 
 	return !FAILED(result);
 }
 
-bool Input::IsKeyDown(unsigned int key)
+bool Input::IsKeyDown(unsigned int key) const
 {
 	return mKeys[key] & 0x80;
 }
 
-Float2 Input::GetMouseLocation()
+bool Input::IsMouseDown(unsigned int btn) const
 {
-	return { mMouseX, mMouseY };
+	return mMouseState.rgbButtons[btn] & 0x80;
 }
 
-float Input::GetMouseWheel()
+Float2 Input::GetMouseLocation() const
 {
-	return -mMouseZ;
+	return { static_cast<float>(mMouseState.lX), static_cast<float>(mMouseState.lY) };
+}
+
+float Input::GetMouseWheel() const
+{
+	return -static_cast<float>(mMouseState.lZ);
 }
 
 bool Input::ReadKeyboard()
@@ -128,14 +132,5 @@ bool Input::ProcessInput()
 		return false;
 
 	// Read the current state of the mouse.
-	result = ReadMouse();
-	if (!result)
-		return false;
-
-
-	// Update the location of the mouse cursor based on the change of the mouse location during the frame.
-	mMouseX = static_cast<float>(mMouseState.lX);
-	mMouseY = static_cast<float>(mMouseState.lY);
-	mMouseZ = static_cast<float>(mMouseState.lZ);
-	return true;
+	return ReadMouse();
 }

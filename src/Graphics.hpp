@@ -26,6 +26,7 @@ public:
 	bool Render();
 	void MoveCamera(float x, float y, double delta, Camera::Move dir);
 	void ZoomCamera(float z);
+	LightBufferType* GetLight() const;
 
 private:
 

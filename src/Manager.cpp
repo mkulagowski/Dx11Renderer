@@ -1,5 +1,8 @@
 #include "Manager.hpp"
 #include "Timer.hpp"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_dx11.h"
 
 Manager & Manager::GetInstance()
 {
@@ -84,39 +87,95 @@ bool Manager::Frame(double delta)
 		return false;
 	}
 
-	Float2 mouse = mInput->GetMouseLocation();
-	bool anyKey = false;
-	if (mInput->IsKeyDown(DIK_UP) || mInput->IsKeyDown(DIK_W))
+	if (mInput->IsMouseDown(1))
 	{
-		mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::Fwd);
-		anyKey = true;
+		Float2 mouse = mInput->GetMouseLocation();
+		bool anyKey = false;
+		if (mInput->IsKeyDown(DIK_UP) || mInput->IsKeyDown(DIK_W))
+		{
+			mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::Fwd);
+			anyKey = true;
+		}
+
+		if (mInput->IsKeyDown(DIK_DOWN) || mInput->IsKeyDown(DIK_S))
+		{
+			mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::Bwd);
+			anyKey = true;
+		}
+
+		if (mInput->IsKeyDown(DIK_LEFT) || mInput->IsKeyDown(DIK_A))
+		{
+			mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::Lt);
+			anyKey = true;
+		}
+
+		if (mInput->IsKeyDown(DIK_RIGHT) || mInput->IsKeyDown(DIK_D))
+		{
+			mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::Rt);
+			anyKey = true;
+		}
+
+		mGraphics->ZoomCamera(static_cast<float>(mInput->GetMouseWheel() * delta * 0.1f));
+
+		if (!anyKey)
+			mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::None);
 	}
 
-	if (mInput->IsKeyDown(DIK_DOWN) || mInput->IsKeyDown(DIK_S))
-	{
-		mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::Bwd);
-		anyKey = true;
-	}
+	FrameUI();
 
-	if (mInput->IsKeyDown(DIK_LEFT) || mInput->IsKeyDown(DIK_A))
-	{
-		mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::Lt);
-		anyKey = true;
-	}
-
-	if (mInput->IsKeyDown(DIK_RIGHT) || mInput->IsKeyDown(DIK_D))
-	{
-		mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::Rt);
-		anyKey = true;
-	}
-
-	mGraphics->ZoomCamera(static_cast<float>(mInput->GetMouseWheel() * delta * 0.1f));
-
-	if (!anyKey)
-		mGraphics->MoveCamera(mouse.f[0], mouse.f[1], delta, Camera::Move::None);
-	
 	// Do the frame processing for the graphics object.
 	return mGraphics->Render();
+}
+
+bool Manager::FrameUI()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	{
+		ImGui::Begin("Lights panel");
+		LightBufferType* lights = mGraphics->GetLight();
+
+		static bool light[8]{ true };
+		//static ImVec4 cols[8]{ ImVec4(1.f, 1.f, 1.f, 1.f) };
+		unsigned int counter = 0;
+		for (int i = 0; i < 8; i++) {
+			lights->Lights[i].Enabled = light[i];
+			//lights->Lights[i].Color = Vector(cols[i]).ToFloat4();
+
+			ImGui::Checkbox((std::string("L") + std::to_string(i)).c_str(), &light[i]);
+			ImGui::SameLine();
+			//ImGui::ColorEdit3("Color", (float*)&cols[i]);
+		}
+
+		/*
+		ImGui::Text("");
+		
+		
+		counter = 0;
+		bool show_demo_window = false, show_another_window = false;
+		
+		                         // Create a window called "Hello, world!" and append into it.
+
+		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+		ImGui::Checkbox("Another Window", &show_another_window);
+
+		//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+			counter++;
+		ImGui::SameLine();
+		ImGui::Text("counter = %d", counter);
+
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		*/
+		ImGui::End();
+	}
+
+	return true;
 }
 
 void Manager::InitializeWindows(int &screenWidth, int &screenHeight)
@@ -190,7 +249,7 @@ void Manager::InitializeWindows(int &screenWidth, int &screenHeight)
 	SetFocus(mHwnd);
 
 	// Hide the mouse cursor.
-	ShowCursor(false);
+	//ShowCursor(false);
 }
 
 void Manager::ShutdownWindows()
@@ -217,23 +276,23 @@ void Manager::ShutdownWindows()
 	return;
 }
 
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
+		return true;
+
 	switch (umessage)
 	{
-		// Check if the window is being destroyed.
+		case WM_SYSCOMMAND:
+			if ((wparam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
+				return 0;
+			break;
+
 		case WM_DESTROY:
-		// Check if the window is being closed.
 		case WM_CLOSE:
-		{
 			PostQuitMessage(0);
 			return 0;
-		}
-
-		// All other messages pass to the message handler in the system class.
-		default:
-		{
-			DefWindowProc(hwnd, umessage, wparam, lparam);
-		}
 	}
+	return DefWindowProc(hwnd, umessage, wparam, lparam);
 }

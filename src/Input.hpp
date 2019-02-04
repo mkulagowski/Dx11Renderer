@@ -18,11 +18,10 @@ public:
 
 	bool ProcessInput();
 
-	bool IsKeyDown(unsigned int key);
-
-	Float2 GetMouseLocation();
-
-	float GetMouseWheel();
+	bool IsKeyDown(unsigned int key) const;
+	bool IsMouseDown(unsigned int btn) const;
+	Float2 GetMouseLocation() const;
+	float GetMouseWheel() const;
 
 private:
 	bool ReadKeyboard();
@@ -30,7 +29,6 @@ private:
 
 	unsigned char mKeys[256];
 	unsigned int mScreenWidth, mScreenHeight;
-	float mMouseX, mMouseY, mMouseZ;
 	DIMOUSESTATE mMouseState;
 
 	DxObject<IDirectInput8> mDirectInput;

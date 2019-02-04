@@ -4,3 +4,4 @@ src/shaders/*.hpp
 src/resources
 *.vcxproj.user
 */*.vcxproj.user
+imgui.ini
