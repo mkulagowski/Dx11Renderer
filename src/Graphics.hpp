@@ -26,7 +26,8 @@ public:
 	bool Render();
 	void MoveCamera(float x, float y, double delta, Camera::Move dir);
 	void ZoomCamera(float z);
-	LightBufferType* GetLight() const;
+	LightManager* GetLight() const;
+	ID3D11Device* GetDevice();
 
 private:
 
@@ -34,7 +35,7 @@ private:
 	std::unique_ptr<Camera> mCamera;
 	std::vector<std::unique_ptr<Model>> mModels;
 	std::unique_ptr<LightShader> mShader;
-	std::unique_ptr<LightBufferType> mLight;
+	std::unique_ptr<LightManager> mLight;
 
 	std::unique_ptr<MaterialProperties> mTextureMaterial;
 	std::vector<std::shared_ptr<MaterialProperties>> mMaterialProperties;

@@ -26,20 +26,13 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 		return false;
 	}
 
+	// Setup Dear ImGui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(hwnd);
 	ImGui_ImplDX11_Init(mD3d->GetDevice(), mD3d->GetDeviceContext());
-
-
-
-
-
-
 
 	mCamera = std::make_unique<Camera>(
 		Vector(0.f, 1.f, -55.f),	//< Camera position
@@ -47,7 +40,8 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 	);
 
 
-	
+	// MATERIALS
+	// TODO: Move to Manager
 	std::shared_ptr<MaterialProperties> defaultMaterial = std::make_shared<MaterialProperties>();
 	defaultMaterial->mMaterial.mEmissive = Float4(0.5f, 0.5f, 0.5f, 0.5f);
 	mMaterialProperties.push_back(defaultMaterial);
@@ -91,8 +85,8 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 	mMaterialProperties.push_back(pearlMaterial);
 
 
-
-
+	// MODELS
+	// TODO: Move to manager
 	mModels.push_back(std::make_unique<Model>());
 	mModels.back()->LoadCube({ 2.f, 4.f, 2.f });
 	mModels.back()->Init(mD3d->GetDevice());
@@ -149,70 +143,7 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 	mShader = std::make_unique<LightShader>();
 	mShader->Initialize(mD3d->GetDevice(), hwnd);
 
-	mLight = std::make_unique<LightBufferType>();
-	mLight->GlobalAmbient = Float4(0.1f, 0.1f, 0.1f, 1.0f);
-
-	static const LightType LightTypes[8] = {
-		PointLight, SpotLight, SpotLight, PointLight, SpotLight, SpotLight, SpotLight, PointLight
-	};
-
-	static const bool LightEnabled[8] = {
-		false, false, false, false, true, false, false, false
-	};
-
-	const int numLights = 8;
-	float radius = 8.0f;
-	float offset = 2.0f * PI / numLights;
-	for (int i = 0; i < numLights; ++i)
-	{
-		Light light;
-		light.Enabled = static_cast<int>(LightEnabled[i]);
-		light.LightType = LightTypes[i];
-		Vector col = Vector(1,0,1,1);//((i + 1) % 3, (i + 1) % 2, (i + 1), 1);
-		light.Color = col.ToFloat4();
-		light.SpotAngle = RADS(45.f);
-		light.ConstantAttenuation = 0.5f;
-		light.LinearAttenuation = 0.08f;
-		light.QuadraticAttenuation = 0.0f;
-		Vector LightPosition = Vector(std::sin(offset * i) * radius, 9.0f, std::cos(offset * i) * radius, 1.0f);
-		light.Position = LightPosition.ToFloat4();
-		Vector LightDirection(-LightPosition.f[0], -LightPosition.f[1], -LightPosition.f[2], 0.0f);
-		LightDirection = LightDirection.Normalized3();
-		light.Direction = LightDirection.ToFloat4();
-		mLight->Lights[i] = light;
-
-		if (light.Enabled) {
-			std::shared_ptr<MaterialProperties> lightMat = std::make_shared<MaterialProperties>();
-			lightMat->mMaterial.mEmissive = light.Color;
-			if (light.LightType == LightType::PointLight)
-			{
-				mModels.push_back(std::make_unique<Model>());
-				mModels.back()->LoadIcoSphere(1.f, 2);
-				mModels.back()->Init(mD3d->GetDevice());
-				mModels.back()->SetPosition(LightPosition);
-
-				mMaterialProperties.push_back(lightMat);
-				mModels.back()->SetMaterial(mMaterialProperties.back());
-			}
-			else if (light.LightType == LightType::SpotLight)
-			{
-				mModels.push_back(std::make_unique<Model>());
-				mModels.back()->LoadPyramid({ 1.f, 1.f, 1.f });
-				mModels.back()->Init(mD3d->GetDevice());
-				mModels.back()->SetPosition(LightPosition);
-
-				mMaterialProperties.push_back(lightMat);
-				mModels.back()->SetMaterial(mMaterialProperties.back());
-
-				Vector vec(0, -1, 0);
-				float cos = Vector::Dot3(vec, LightDirection);
-				float sin = sqrt(1.f - (cos*cos));
-				Vector axis = Vector::Cross3(LightDirection, vec);
-				float angle = atan(sin / cos);
-				mModels.back()->SetRotation(Matrix::MakeRotationNormal(axis, angle));
-			}
-		}
-	}
+	mLight = std::make_unique<LightManager>();
 
 	return true;
 }
@@ -228,9 +159,14 @@ void Graphics::ZoomCamera(float z)
 	mD3d->RecalculateProjectionMatrix();
 }
 
-LightBufferType * Graphics::GetLight() const
+LightManager * Graphics::GetLight() const
 {
 	return mLight.get();
+}
+
+ID3D11Device * Graphics::GetDevice()
+{
+	return mD3d->GetDevice();
 }
 
 bool Graphics::Render()
@@ -241,10 +177,25 @@ bool Graphics::Render()
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	for (auto &i : mModels)
 	{
-		i->Bind(mD3d->GetDeviceContext());
+		if (i)
+		{
+			i->Bind(mD3d->GetDeviceContext());
 
-		mShader->Render(mD3d->GetDeviceContext(), i->GetIndexCount(), i->GetWorldMatrix(), mCamera->GetViewMatrix(), mD3d->GetProjectionMatrix(),
-			mCamera->GetPosition(), *mLight.get(), i->GetMaterial());
+			mShader->Render(mD3d->GetDeviceContext(), i->GetIndexCount(), i->GetWorldMatrix(), mCamera->GetViewMatrix(), mD3d->GetProjectionMatrix(),
+				mCamera->GetPosition(), *mLight->GetLightBuffer(), i->GetMaterial());
+		}
+	}
+
+	for (int i = 0; i < LIGHT_NO; ++i)
+	{
+		Model* mdl = mLight->GetModel(i);
+		if (mdl != nullptr && mLight->GetLight(i)->Enabled == 1)
+		{
+			mdl->Bind(mD3d->GetDeviceContext());
+
+			mShader->Render(mD3d->GetDeviceContext(), mdl->GetIndexCount(), mdl->GetWorldMatrix(), mCamera->GetViewMatrix(), mD3d->GetProjectionMatrix(),
+				mCamera->GetPosition(), *mLight->GetLightBuffer(), mdl->GetMaterial());
+		}
 	}
 
 	ImGui::Render();

@@ -2,6 +2,10 @@
 
 #include "Vector.hpp"
 #include "MathUtils.hpp"
+#include <array>
+#include "Model.hpp"
+
+constexpr unsigned char LIGHT_NO = 8;
 
 enum LightType
 {
@@ -25,21 +29,15 @@ struct Light
 	{}
 
 	Float4    Position;
-	//----------------------------------- (16 byte boundary)
 	Float4 Direction;
-	//----------------------------------- (16 byte boundary)
 	Float4 Color;
-	//----------------------------------- (16 byte boundary)
 	float       SpotAngle;
 	float       ConstantAttenuation;
 	float       LinearAttenuation;
 	float       QuadraticAttenuation;
-	//----------------------------------- (16 byte boundary)
 	int         LightType;
 	int         Enabled;
-	// Add some padding to make this struct size a multiple of 16 bytes.
 	int         Padding[2];
-	//----------------------------------- (16 byte boundary)
 };
 
 struct LightBufferType
@@ -51,40 +49,28 @@ struct LightBufferType
 
 	Float4 EyePosition;
 	Float4 GlobalAmbient;
-	Light Lights[8];
-
-	/*
-	Float4 ambientColor;
-	Float4 diffuseColor;
-	Float3 lightDirection;
-	float specularPower;
-	Float4 specularColor;*/
+	Light Lights[LIGHT_NO];
 };
 
-/*
-
-class Light
+class LightManager
 {
 public:
-	Light();
-	~Light();
+	LightManager();
+	~LightManager();
 
-	void SetDiffuseColor(float, float, float, float);
-	void SetAmbient(float, float, float, float);
-	void SetDirection(float, float, float);
-	void SetSpecularColor(float r, float g, float b, float a);
-	void SetSpecularPower(float power);
+	std::array<std::unique_ptr<Model>, LIGHT_NO>* GetModels();
+	Model* GetModel(int i);
+    void RenderUI(ID3D11Device* device);
+	Vector GetAmbient() const;
+	void SetAmbient(Vector col);
 
-	Vector GetDiffuseColor();
-	Vector GetDirection();
-	Vector GetAmbient();
-	Vector GetSpecularColor();
-	float GetSpecularPower();
+	Light* GetLight(unsigned char i);
+	LightBufferType* GetLightBuffer();
+
+	void InitModels(ID3D11Device* device);
 
 private:
-	Vector m_diffuseColor;
-	Vector m_direction;
-	Vector mAmbient;
-	Vector mSpecular;
-	float mSpecularPower;
-};*/
+	LightBufferType mLightBuffer;
+	std::array<std::unique_ptr<Model>, LIGHT_NO> mLightModels;
+	std::array<int, LIGHT_NO> mLastType;
+};

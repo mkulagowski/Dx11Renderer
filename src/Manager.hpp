@@ -6,6 +6,7 @@
 
 #include "Input.hpp"
 #include "Graphics.hpp"
+#include "Light.hpp"
 
 class Manager
 {
@@ -19,6 +20,7 @@ private:
 	Manager();
 	~Manager();
 	bool Frame(double delta);
+	void SceneSetup();
 	bool FrameUI();
 	void InitializeWindows(int &screenWidth, int &screenHeight);
 	void ShutdownWindows();
@@ -29,6 +31,7 @@ private:
 
 	std::unique_ptr<Input> mInput;
 	std::unique_ptr<Graphics> mGraphics;
+	std::unique_ptr<LightManager> mLights;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

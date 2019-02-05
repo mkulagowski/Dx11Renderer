@@ -126,6 +126,7 @@ void Model::LoadIcoSphere(float radius, uint8_t subdivisions)
 {
 	IcosphereCreator creator;
 	creator.Create(subdivisions);
+	mVertices.clear();
 	mVertices.reserve(creator.GetVerticesNumber());
 	for (auto &i : creator.GetVertices())
 	{
@@ -137,6 +138,7 @@ void Model::LoadIcoSphere(float radius, uint8_t subdivisions)
 			});
 	}
 
+	mIndices.clear();
 	mIndices.reserve(creator.GetIndicesNumber());
 	for (auto &i : creator.GetIndices())
 	{

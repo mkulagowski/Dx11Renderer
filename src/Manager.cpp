@@ -26,7 +26,12 @@ bool Manager::Init()
 
 	// Initialize the graphics object.
 	mGraphics = std::make_unique<Graphics>();
-	return mGraphics->Init(screenWidth, screenHeight, mHwnd);
+	if (!mGraphics->Init(screenWidth, screenHeight, mHwnd))
+		return false;
+
+
+	SceneSetup();
+	return true;
 }
 
 void Manager::Run()
@@ -127,53 +132,53 @@ bool Manager::Frame(double delta)
 	return mGraphics->Render();
 }
 
+void Manager::SceneSetup()
+{
+	// Set up lights for the scene
+	LightManager* lm = mGraphics->GetLight();
+	lm->SetAmbient({ 0.1f, 0.1f, 0.1f, 1.0f });
+
+	static const LightType LightTypes[LIGHT_NO] = {
+		PointLight, SpotLight, SpotLight, PointLight, SpotLight, SpotLight, SpotLight, PointLight
+	};
+
+	static const bool LightEnabled[LIGHT_NO] = {
+		false, false, false, false, true, false, false, false
+	};
+
+
+	float radius = 8.0f;
+	float offset = 2.0f * PI / LIGHT_NO;
+	for (int i = 0; i < LIGHT_NO; ++i)
+	{
+		Light* light = lm->GetLight(i);
+		light->Enabled = static_cast<int>(LightEnabled[i]);
+		light->LightType = LightTypes[i];
+		Vector col = Vector(1, 0, 1, 1);//((i + 1) % 3, (i + 1) % 2, (i + 1), 1);
+		light->Color = col.ToFloat4();
+		light->SpotAngle = RADS(45.f);
+		light->ConstantAttenuation = 0.5f;
+		light->LinearAttenuation = 0.08f;
+		light->QuadraticAttenuation = 0.0f;
+		Vector LightPosition = Vector(std::sin(offset * i) * radius, 9.0f, std::cos(offset * i) * radius, 1.0f);
+		light->Position = LightPosition.ToFloat4();
+		Vector LightDirection(-LightPosition.f[0], -LightPosition.f[1], -LightPosition.f[2], 0.0f);
+		LightDirection = LightDirection.Normalized3();
+		light->Direction = LightDirection.ToFloat4();
+	}
+
+	lm->InitModels(mGraphics->GetDevice());
+}
+
 bool Manager::FrameUI()
 {
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	{
-		ImGui::Begin("Lights panel");
-		LightBufferType* lights = mGraphics->GetLight();
-
-		static bool light[8]{ true };
-		//static ImVec4 cols[8]{ ImVec4(1.f, 1.f, 1.f, 1.f) };
-		unsigned int counter = 0;
-		for (int i = 0; i < 8; i++) {
-			lights->Lights[i].Enabled = light[i];
-			//lights->Lights[i].Color = Vector(cols[i]).ToFloat4();
-
-			ImGui::Checkbox((std::string("L") + std::to_string(i)).c_str(), &light[i]);
-			ImGui::SameLine();
-			//ImGui::ColorEdit3("Color", (float*)&cols[i]);
-		}
-
-		/*
-		ImGui::Text("");
-		
-		
-		counter = 0;
-		bool show_demo_window = false, show_another_window = false;
-		
-		                         // Create a window called "Hello, world!" and append into it.
-
-		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-		ImGui::Checkbox("Another Window", &show_another_window);
-
-		//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-			counter++;
-		ImGui::SameLine();
-		ImGui::Text("counter = %d", counter);
-
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		*/
-		ImGui::End();
-	}
+	ImGui::Begin("Lights panel");
+	mGraphics->GetLight()->RenderUI(mGraphics->GetDevice());
+	ImGui::End();
 
 	return true;
 }
@@ -230,8 +235,8 @@ void Manager::InitializeWindows(int &screenWidth, int &screenHeight)
 	else
 	{
 		// If windowed then set it to 800x600 resolution.
-		screenWidth = 800;
-		screenHeight = 600;
+		screenWidth = 1024;
+		screenHeight = 768;
 
 		// Place the window in the middle of the screen.
 		posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth) / 2;
