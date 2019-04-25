@@ -5,8 +5,8 @@
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 #include <dinput.h>
-#include "DxObject.hpp"
-#include "Float2.hpp"
+#include "../DxObject.hpp"
+#include "../Float2.hpp"
 
 class Input
 {

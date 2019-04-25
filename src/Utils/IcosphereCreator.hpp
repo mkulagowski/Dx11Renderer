@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unordered_map>
-#include "Vector.hpp"
+#include "../Vector.hpp"
 #include <vector>
 
 class IcosphereCreator

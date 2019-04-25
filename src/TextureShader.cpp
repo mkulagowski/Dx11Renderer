@@ -1,6 +1,6 @@
 #include "TextureShader.hpp"
-#include "shaders/tex_vs.hpp"
-#include "shaders/tex_ps.hpp"
+#include "TexturePS.hpp"
+#include "TextureVS.hpp"
 
 TextureShader::TextureShader()
 {

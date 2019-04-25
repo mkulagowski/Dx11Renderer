@@ -1,6 +1,7 @@
 Bin
+build
 .vs
-src/shaders/*.hpp
+src/shaders/Precompiled
 src/resources
 *.vcxproj.user
 */*.vcxproj.user

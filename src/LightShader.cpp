@@ -1,6 +1,6 @@
 #include "LightShader.hpp"
-#include "shaders/mat_ps.hpp"
-#include "shaders/mat_vs.hpp"
+#include "TexturedLitPS.hpp"
+#include "TexturedLitVS.hpp"
 
 LightShader::LightShader()
 {
@@ -189,13 +189,13 @@ bool LightShader::CreateTextureSampler(ID3D11Device* device)
 
 bool LightShader::InitializeShader(ID3D11Device * device, HWND hwnd)
 {
-	if (!CreateVertexShader(device, gMatVSArray, sizeof(gMatVSArray)))
+	if (!CreateVertexShader(device, gTexturedLitVSArray, sizeof(gTexturedLitVSArray)))
 		return false;
 
-	if (!CreatePixelShader(device, gMatPSArray, sizeof(gMatPSArray)))
+	if (!CreatePixelShader(device, gTexturedLitPSArray, sizeof(gTexturedLitPSArray)))
 		return false;
 
-	if (!CreateInputLayout(device, gMatVSArray, sizeof(gMatVSArray)))
+	if (!CreateInputLayout(device, gTexturedLitVSArray, sizeof(gTexturedLitVSArray)))
 		return false;
 
 	if (!CreateTextureSampler(device))

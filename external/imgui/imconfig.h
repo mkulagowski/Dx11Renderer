@@ -51,7 +51,7 @@
 
 //---- Define constructor and implicit cast operators to convert back<>forth between your math types and ImVec2/ImVec4.
 // This will be inlined as part of ImVec2 and ImVec4 class declarations.
-#include "../Vector.hpp"
+#include "Vector.hpp"
 
 #define IM_VEC2_CLASS_EXTRA                                                 \
         ImVec2(const Vector& f) { x = f.f[0]; y = f.f[1]; }                       \

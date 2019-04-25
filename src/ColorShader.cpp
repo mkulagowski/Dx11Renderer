@@ -1,6 +1,6 @@
 #include "ColorShader.hpp"
-#include "shaders\col_ps.hpp"
-#include "shaders\col_vs.hpp"
+#include "ColorPS.hpp"
+#include "ColorVS.hpp"
 
 ColorShader::ColorShader()
 {

@@ -1,7 +1,7 @@
 #include "Model.hpp"
 
 #include "model_obj/model_obj.h"
-#include "IcosphereCreator.hpp"
+#include "Utils/IcosphereCreator.hpp"
 #include "MathUtils.hpp"
 
 Model::Model()

@@ -4,7 +4,7 @@
 #include "DxObject.hpp"
 #include "Vector.hpp"
 #include <string>
-#include "Image.hpp"
+#include "Utils/Image.hpp"
 
 class Texture
 {

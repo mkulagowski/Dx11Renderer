@@ -4,7 +4,7 @@
 #include <Windows.h>
 #include <memory>
 
-#include "Input.hpp"
+#include "Utils/Input.hpp"
 #include "Graphics.hpp"
 #include "Light.hpp"
 

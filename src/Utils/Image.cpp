@@ -1,6 +1,7 @@
 #include "Image.hpp"
-#include "libpng/png.h"
+#include "png.h"
 #include "File.hpp"
+#include <memory>
 
 #define PNGSIGSIZE 8
 

@@ -2,6 +2,7 @@
 
 #include "Float4.hpp"
 #include "Texture.hpp"
+#include <memory>
 
 struct Material
 {
