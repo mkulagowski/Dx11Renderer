@@ -286,7 +286,7 @@ void Model::Bind(ID3D11DeviceContext *deviceContext)
 
 int Model::GetIndexCount() const
 {
-	return mIndices.size();
+	return static_cast<int>(mIndices.size());
 }
 
 Vector Model::GetPosition() const
@@ -319,7 +319,7 @@ bool Model::InitializeBuffers(ID3D11Device * device)
 	// Set up the description of the static vertex buffer.
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(decltype (mVertices)::value_type) * mVertices.size();
+	vertexBufferDesc.ByteWidth = static_cast<UINT>(sizeof(decltype (mVertices)::value_type) * mVertices.size());
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
@@ -341,7 +341,7 @@ bool Model::InitializeBuffers(ID3D11Device * device)
 	// Set up the description of the static index buffer.
 	D3D11_BUFFER_DESC indexBufferDesc;
 	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(decltype (mIndices)::value_type) * mIndices.size();
+	indexBufferDesc.ByteWidth = static_cast<UINT>(sizeof(decltype (mIndices)::value_type) * mIndices.size());
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;

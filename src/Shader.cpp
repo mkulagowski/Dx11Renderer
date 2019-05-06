@@ -41,22 +41,18 @@ bool Shader::Render(ID3D11DeviceContext * deviceContext, int indexCount, Matrix 
 
 void Shader::OutputShaderErrorMessage(ID3D10Blob * errorMessage, HWND hwnd, LPCTSTR shaderFilename)
 {
-	char* compileErrors;
-	unsigned long bufferSize, i;
-	std::ofstream fout;
-
-
 	// Get a pointer to the error message text buffer.
-	compileErrors = (char*)(errorMessage->GetBufferPointer());
+	char* compileErrors = reinterpret_cast<char*>(errorMessage->GetBufferPointer());
 
 	// Get the length of the message.
-	bufferSize = errorMessage->GetBufferSize();
+	unsigned long bufferSize = static_cast<unsigned long>(errorMessage->GetBufferSize());
 
 	// Open a file to write the error message to.
+	std::ofstream fout;
 	fout.open("shader-error.txt");
 
 	// Write out the error message.
-	for (i = 0; i < bufferSize; i++)
+	for (unsigned long i = 0; i < bufferSize; i++)
 	{
 		fout << compileErrors[i];
 	}
