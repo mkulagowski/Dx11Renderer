@@ -55,7 +55,7 @@ Vector Camera::GetRotation()
 //#include <cstdio>
 void Camera::MoveCamera(float x, float y, double dTime, Camera::Move moveDir)
 {
-	static auto speed = 60.f;
+	static auto speed = 200.f;
 	static auto mouseSpeed = 0.05f;
 	mHAngle += static_cast<float>(x * mouseSpeed * dTime);
 	mVAngle -= static_cast<float>(y * mouseSpeed * dTime);

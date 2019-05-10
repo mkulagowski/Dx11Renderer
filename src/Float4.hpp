@@ -14,6 +14,10 @@ public:
 		: f{ static_cast<float>(f1), static_cast<float>(f2), static_cast<float>(f3), static_cast<float>(f4) }
 	{};
 
+	Float4(float* f)
+		: Float4(f[0], f[1], f[2], f[3])
+	{};
+
 	Float4()
 		: Float4(0.f, 0.f, 0.f, 0.f)
 	{};

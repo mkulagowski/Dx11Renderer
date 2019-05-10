@@ -15,6 +15,7 @@ namespace {
 
 	bool usingTrnsChunk(png_structp pngPtr, png_infop infoPtr)
 	{
+		
 		if (png_get_valid(pngPtr, infoPtr, PNG_INFO_tRNS))
 		{
 			png_set_tRNS_to_alpha(pngPtr);
@@ -108,8 +109,6 @@ bool Image::OpenPng(std::string path)
 	if (bitdepth > 8)
 		png_set_scale_16(pngPtr);
 
-	//ImageFormat format = ImageFormat::Unknown;
-
 	switch (color_type)
 	{
 	case PNG_COLOR_TYPE_PALETTE:
@@ -138,7 +137,6 @@ bool Image::OpenPng(std::string path)
 		break;
 
 	case PNG_COLOR_TYPE_RGB:
-
 		// if the image has a transperancy set, convert it to a full Alpha channel
 		if (usingTrnsChunk(pngPtr, infoPtr))
 		{
@@ -158,8 +156,6 @@ bool Image::OpenPng(std::string path)
 	default:
 		return false;
 	}
-
-	bitdepth = 8;
 
 	size_t dataSize = imgWidth * imgHeight * bitdepth * channels / 8;
 	std::unique_ptr<png_bytep[]> rowPtrs(new (std::nothrow) png_bytep[imgHeight]);
@@ -186,17 +182,28 @@ bool Image::OpenPng(std::string path)
 	// Create mipmap based on data read from PNG
 	mWidth = imgWidth;
 	mHeight = imgHeight;
+	mChannels = channels;
 	mImage.SetData(dataPtr.get(), dataSize);
+
+	if (mChannels < 4)
+		ExpandWithAlpha(0);
+
 	png_destroy_read_struct(&pngPtr, &infoPtr, nullptr);
 
 	return true;
 }
 
-void Image::SetData(void * data, size_t size, uint64_t width, uint64_t height)
+void Image::SetData(void* data, size_t size, uint64_t width, uint64_t height)
+{
+	SetData(data, size, width, height, 4);
+}
+
+void Image::SetData(void* data, size_t size, uint64_t width, uint64_t height, uint8_t channels)
 {
 	mImage.SetData(data, size);
 	mWidth = width;
 	mHeight = height;
+	mChannels = channels;
 }
 
 uint64_t Image::GetHeight() const
@@ -209,7 +216,34 @@ uint64_t Image::GetWidth() const
 	return mWidth;
 }
 
-void * Image::GetData() const
+uint8_t Image::GetChannels() const
+{
+	return mChannels;
+}
+
+void* Image::GetData() const
 {
 	return mImage.GetData();
+}
+
+void Image::ExpandWithAlpha(uint8_t alphaValue)
+{
+	if (mChannels == 4)
+		return;
+	printf("Expanding Alpha!\n");
+	std::vector<uint8_t> newData;
+	const uint64_t newSize = mWidth * mHeight * 4;
+	// Fill new image buffer with alpha values
+	newData.resize(newSize, alphaValue);
+	uint8_t* oldDataPtr = reinterpret_cast<uint8_t*>(mImage.GetData());
+	uint8_t* newDataPtr = newData.data();
+
+	const uint8_t oldPixSize = sizeof(newData[0]) * mChannels;
+	const uint8_t newPixSize = sizeof(newData[0]) * 4;
+	// For each pixel copy over the RGB values (alpha values already in vec won't get overwritten)
+	for (uint64_t i = 0; i < mWidth * mHeight; i++)
+		memcpy(newDataPtr + (i * newPixSize), oldDataPtr + (i * oldPixSize), oldPixSize);
+
+	mImage.SetData(newData.data(), newSize * sizeof(newData[0]));
+	mChannels = 4;
 }

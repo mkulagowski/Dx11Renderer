@@ -58,8 +58,8 @@ bool Texture::CreateBuffers(ID3D11Device * device, const Image &img)
 	D3D11_SUBRESOURCE_DATA texData;
 	ZeroMemory(&texData, sizeof(D3D11_SUBRESOURCE_DATA));
 	texData.pSysMem = img.GetData();
-	texData.SysMemPitch = (UINT)(img.GetWidth() * 4);
-	texData.SysMemSlicePitch = (UINT)(img.GetWidth() * img.GetHeight() * 4);
+	texData.SysMemPitch = (UINT)(img.GetWidth() * img.GetChannels());
+	texData.SysMemSlicePitch = (UINT)(img.GetWidth() * img.GetHeight() * img.GetChannels());
 	DxObject<ID3D11Texture2D> texPtr;
 	result = device->CreateTexture2D(&textureDesc, &texData, texPtr.getAt());
 

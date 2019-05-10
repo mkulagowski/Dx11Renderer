@@ -147,9 +147,16 @@ bool Direct3d::InitSwapChain(HWND hwnd, bool fullscreen)
 
 	// Set the feature level to DirectX 11.
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+	
+	UINT creationFlags = 0;
+
+#ifdef _DEBUG
+	// If the project is in a debug build, enable the debug layer.
+	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
 
 	// Create the swap chain, Direct3D device, and Direct3D device context.
-	HRESULT result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, &featureLevel, 1,
+	HRESULT result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, &featureLevel, 1,
 		D3D11_SDK_VERSION, &swapChainDesc, mSwapChain.getAt(), mDevice.getAt(), nullptr, mDeviceContext.getAt());
 	if (FAILED(result))
 		return false;
@@ -196,6 +203,7 @@ bool Direct3d::InitDepthBuffer()
 	HRESULT result = mDevice.get()->CreateTexture2D(&depthBufferDesc, NULL, mDepthStencilBuffer.getAt());
 	if (FAILED(result))
 		return false;
+
 	return true;
 }
 

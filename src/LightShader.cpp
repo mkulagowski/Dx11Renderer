@@ -241,14 +241,15 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, Matri
 
 	// Finally set the light constant buffer in the pixel shader with the updated values.
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, mLightBuffer.getAt());
-	
+
+	/*
 	// Lock the light constant buffer so it can be written to.
 	result = deviceContext->Map(mCameraBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 	{
 		return false;
 	}
-	/*
+	
 	// Get a pointer to the data in the constant buffer.
 	CameraBufferType* dataPtrCam = (CameraBufferType*)mappedResource.pData;
 

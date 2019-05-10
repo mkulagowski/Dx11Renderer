@@ -30,7 +30,7 @@ public:
 	void LoadCone(float halfHeight, float radius, uint8_t subdivisions);
 	void LoadPyramid(Vector halfSize);
 	void LoadPlane(float halfWidth, float halfHeight);
-	void LoadFromObjFile(std::string path);
+	static std::vector<std::unique_ptr<Model>> LoadFromObjFile(std::string path, ID3D11Device* dev);
 
 	void SetMaterial(std::shared_ptr<MaterialProperties> material);
 	MaterialProperties* GetMaterial() const;
@@ -46,7 +46,7 @@ public:
 	void Bind(ID3D11DeviceContext* ctx);
 	int GetIndexCount() const;
 	
-	
+	std::string tag;
 private:
 	Vector mPosition;
 	Matrix mRotation;

@@ -87,6 +87,16 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 
 	// MODELS
 	// TODO: Move to manager
+	//mModels.push_back(std::make_unique<Model>());
+	
+	//mModels = Model::LoadFromObjFile("C:/Users/mikul1/Documents/gitprojects/Dx11Renderer/cubbe/cube.obj", mD3d->GetDevice());
+	mModels = Model::LoadFromObjFile("../../../../src/resources/sponza/sponza.obj", mD3d->GetDevice());
+	for (int i = 0; i < mModels.size(); i++)
+	{
+		mModels[i]->SetPosition({ 0 });
+		mModels[i]->Init(mD3d->GetDevice());
+	}
+	/*
 	mModels.push_back(std::make_unique<Model>());
 	mModels.back()->LoadCube({ 2.f, 4.f, 2.f });
 	mModels.back()->Init(mD3d->GetDevice());
@@ -138,7 +148,7 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 	mModels.back()->SetPosition(Vector(10, 10, 0, 0));
 	mModels.back()->SetMaterial(mMaterialProperties[1]);
 
-
+	*/
 
 	mShader = std::make_unique<LightShader>();
 	mShader->Initialize(mD3d->GetDevice(), hwnd);
@@ -173,12 +183,13 @@ bool Graphics::Render()
 {
 	// Clear the buffers to begin the scene.
 	mD3d->BeginScene(Vector(0.0f, 0.0f, 0.0f, 1.0f));
-
+	//printf(":::BEGIN RENDER\n");
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	for (auto &i : mModels)
 	{
 		if (i)
 		{
+			//printf("%s\n", i->tag.c_str());
 			i->Bind(mD3d->GetDeviceContext());
 
 			mShader->Render(mD3d->GetDeviceContext(), i->GetIndexCount(), i->GetWorldMatrix(), mCamera->GetViewMatrix(), mD3d->GetProjectionMatrix(),

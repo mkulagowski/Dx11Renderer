@@ -136,14 +136,14 @@ void Manager::SceneSetup()
 {
 	// Set up lights for the scene
 	LightManager* lm = mGraphics->GetLight();
-	lm->SetAmbient({ 0.1f, 0.1f, 0.1f, 1.0f });
+	lm->SetAmbient({ 0.8f, 0.81f, 0.8f, 1.0f });
 
 	static const LightType LightTypes[LIGHT_NO] = {
 		PointLight, SpotLight, SpotLight, PointLight, SpotLight, SpotLight, SpotLight, PointLight
 	};
 
 	static const bool LightEnabled[LIGHT_NO] = {
-		false, false, false, false, true, false, false, false
+		true, false, false, false, true, false, false, false
 	};
 
 
@@ -166,7 +166,8 @@ void Manager::SceneSetup()
 		LightDirection = LightDirection.Normalized3();
 		light->Direction = LightDirection.ToFloat4();
 	}
-
+	lm->GetLight(0)->Color = { 1,1,1,1 };
+	lm->GetLight(0)->LinearAttenuation = 0.001f;
 	lm->InitModels(mGraphics->GetDevice());
 }
 

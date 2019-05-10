@@ -241,30 +241,67 @@ void Model::LoadPlane(float halfWidth, float halfHeight)
 	mIndices.push_back(3);  // Bottom right.
 }
 
-void Model::LoadFromObjFile(std::string path)
+std::vector<std::unique_ptr<Model>> Model::LoadFromObjFile(std::string path, ID3D11Device* dev)
 {
-	mVertices.clear();
-	mIndices.clear();
-
 	ModelOBJ mdl;
-	mdl.import(path.c_str());
+	mdl.import(path.c_str(), false);
+	int meshNo = mdl.getNumberOfMeshes();
+	if (meshNo == 0)
+		return std::vector<std::unique_ptr<Model>>();
+
+	uint64_t sizeV = mdl.getNumberOfVertices();
+	uint64_t sizeI = mdl.getNumberOfIndices();
+
+
+	std::vector<std::unique_ptr<Model>> models;
+	models.reserve(meshNo);
+	const std::string dirPath = mdl.getPath();
+	std::unordered_map<std::string, std::shared_ptr<MaterialProperties>> name2MatPtr;
 	
-	int size = mdl.getNumberOfVertices();
+	int matNo = mdl.getNumberOfMaterials();
+	for (int i = 0; i < matNo; ++i)
+	{
+		auto mat = mdl.getMaterial(i);
+
+		std::shared_ptr<MaterialProperties> meshMaterial = std::make_shared<MaterialProperties>();
+		meshMaterial->mMaterial.mUseTexture = true;
+		meshMaterial->mTexture = std::make_shared<Texture>();
+		//printf("- MAT: %s // %s\n", mat.name.c_str(), mat.colorMapFilename.c_str());
+		meshMaterial->mTexture->Initialize(dev, dirPath + mat.colorMapFilename);
+
+		meshMaterial->mMaterial.mAmbient = mat.ambient;
+		meshMaterial->mMaterial.mDiffuse = mat.diffuse;
+		meshMaterial->mMaterial.mSpecular = mat.specular;
+		meshMaterial->mMaterial.mSpecularPower = mat.shininess;
+
+		name2MatPtr.insert( { mat.name, meshMaterial } );
+	}
+
 	const ModelOBJ::Vertex* ptr = mdl.getVertexBuffer();
-	mVertices.reserve(size);
-	for (int i = 0; i < size; i++) {
-		mVertices.push_back({
-			Float3(ptr[i].position[0], ptr[i].position[1], ptr[i].position[2]),
-			Float2(ptr[i].texCoord[0], ptr[i].texCoord[1]                    ),
-			Float3(ptr[i].normal[0]  , ptr[i].normal[1]  , ptr[i].normal[2]  )
-		});
-	}
-	size = mdl.getNumberOfIndices();
 	const int* ptri = mdl.getIndexBuffer();
-	mIndices.reserve(size);
-	for (int i = 0; i < size; i++) {
-		mIndices.push_back(static_cast<uint32_t>(ptri[i]));
+
+	for (int i = 0; i < meshNo; ++i)
+	{
+		auto mesh = mdl.getMesh(i);
+		models.push_back(std::make_unique<Model>());
+		models.back()->mMaterial = name2MatPtr[mesh.pMaterial->name];
+		models.back()->tag = "[" + std::to_string(i) + "] - " + mesh.pMaterial->name;
+		models.back()->mVertices.reserve(mesh.triangleCount * 3);
+		models.back()->mIndices.reserve(mesh.triangleCount * 3);
+
+		for (int j = 0; j < mesh.triangleCount * 3; j++) {
+			uint32_t vertIdx = static_cast<uint32_t>(ptri[mesh.startIndex + j]);
+
+			models.back()->mVertices.push_back({
+				Float3(ptr[vertIdx].position[0], ptr[vertIdx].position[1], ptr[vertIdx].position[2]),
+				Float2(ptr[vertIdx].texCoord[0], 1 - ptr[vertIdx].texCoord[1]),
+				Float3(ptr[vertIdx].normal[0]  , ptr[vertIdx].normal[1]  , ptr[vertIdx].normal[2])
+				});
+			models.back()->mIndices.push_back(j);
+		}
 	}
+
+	return models;
 }
 
 void Model::Bind(ID3D11DeviceContext *deviceContext)
