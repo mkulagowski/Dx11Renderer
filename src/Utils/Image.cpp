@@ -1,6 +1,7 @@
 #include "Image.hpp"
 #include "png.h"
 #include "File.hpp"
+#include "Logger.hpp"
 #include <memory>
 
 #define PNGSIGSIZE 8
@@ -230,7 +231,7 @@ void Image::ExpandWithAlpha(uint8_t alphaValue)
 {
 	if (mChannels == 4)
 		return;
-	printf("Expanding Alpha!\n");
+	LOGI("Expanding alpha channel!");
 	std::vector<uint8_t> newData;
 	const uint64_t newSize = mWidth * mHeight * 4;
 	// Fill new image buffer with alpha values

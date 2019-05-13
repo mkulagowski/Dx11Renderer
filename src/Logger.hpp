@@ -20,7 +20,7 @@ template<class ...Ts> void LOGE(const char* format, Ts... args) {
 	printf(formatStr.c_str(), args...);
 }
 
-#elif
+#else
 
 #define LOGI(...)
 #define LOGE(...)

@@ -3,6 +3,7 @@
 #include "model_obj/model_obj.h"
 #include "Utils/IcosphereCreator.hpp"
 #include "MathUtils.hpp"
+#include "Logger.hpp"
 
 Model::Model()
 {
@@ -243,12 +244,15 @@ void Model::LoadPlane(float halfWidth, float halfHeight)
 
 std::vector<std::unique_ptr<Model>> Model::LoadFromObjFile(std::string path, ID3D11Device* dev)
 {
+	LOGI("Loading model from \"%s\"", path.c_str());
 	ModelOBJ mdl;
 	mdl.import(path.c_str(), false);
 	int meshNo = mdl.getNumberOfMeshes();
-	if (meshNo == 0)
+	if (meshNo == 0) {
+		LOGW("No meshes found!");
 		return std::vector<std::unique_ptr<Model>>();
-
+	}
+	LOGI("%d meshes loaded!", meshNo);
 	uint64_t sizeV = mdl.getNumberOfVertices();
 	uint64_t sizeI = mdl.getNumberOfIndices();
 
@@ -259,6 +263,7 @@ std::vector<std::unique_ptr<Model>> Model::LoadFromObjFile(std::string path, ID3
 	std::unordered_map<std::string, std::shared_ptr<MaterialProperties>> name2MatPtr;
 	
 	int matNo = mdl.getNumberOfMaterials();
+	LOGI("Loading %d materials...", matNo);
 	for (int i = 0; i < matNo; ++i)
 	{
 		auto mat = mdl.getMaterial(i);
@@ -266,7 +271,7 @@ std::vector<std::unique_ptr<Model>> Model::LoadFromObjFile(std::string path, ID3
 		std::shared_ptr<MaterialProperties> meshMaterial = std::make_shared<MaterialProperties>();
 		meshMaterial->mMaterial.mUseTexture = true;
 		meshMaterial->mTexture = std::make_shared<Texture>();
-		//printf("- MAT: %s // %s\n", mat.name.c_str(), mat.colorMapFilename.c_str());
+		LOGI("\t %s from \"%s\"", mat.name.c_str(), mat.colorMapFilename.c_str());
 		meshMaterial->mTexture->Initialize(dev, dirPath + mat.colorMapFilename);
 
 		meshMaterial->mMaterial.mAmbient = mat.ambient;

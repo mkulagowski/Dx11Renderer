@@ -87,9 +87,7 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 
 	// MODELS
 	// TODO: Move to manager
-	//mModels.push_back(std::make_unique<Model>());
-	
-	//mModels = Model::LoadFromObjFile("C:/Users/mikul1/Documents/gitprojects/Dx11Renderer/cubbe/cube.obj", mD3d->GetDevice());
+
 	mModels = Model::LoadFromObjFile("../../../../src/resources/sponza/sponza.obj", mD3d->GetDevice());
 	for (int i = 0; i < mModels.size(); i++)
 	{
