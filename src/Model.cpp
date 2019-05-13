@@ -147,10 +147,6 @@ void Model::LoadIcoSphere(float radius, uint8_t subdivisions)
 	}
 }
 
-void Model::LoadCone(float halfHeight, float radius, uint8_t subdivisions)
-{
-}
-
 void Model::LoadPyramid(Vector halfSize)
 {
 	mVertices.clear();
@@ -377,6 +373,7 @@ bool Model::InitializeBuffers(ID3D11Device * device)
 	HRESULT result = device->CreateBuffer(&vertexBufferDesc, &vertexData, mVertexBuffer.getAt());
 	if (FAILED(result))
 	{
+		LOGE("CreateBuffer for vertex failed!");
 		return false;
 	}
 
@@ -398,5 +395,11 @@ bool Model::InitializeBuffers(ID3D11Device * device)
 	// Create the index buffer.
 	result = device->CreateBuffer(&indexBufferDesc, &indexData, mIndexBuffer.getAt());
 
-	return !FAILED(result);
+	if (FAILED(result))
+	{
+		LOGE("CreateBuffer for index failed!");
+		return false;
+	}
+
+	return true;
 }

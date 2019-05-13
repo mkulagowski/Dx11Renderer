@@ -231,7 +231,7 @@ void Image::ExpandWithAlpha(uint8_t alphaValue)
 {
 	if (mChannels == 4)
 		return;
-	LOGI("Expanding alpha channel!");
+	LOGI("\t\tExpanding alpha channel!");
 	std::vector<uint8_t> newData;
 	const uint64_t newSize = mWidth * mHeight * 4;
 	// Fill new image buffer with alpha values

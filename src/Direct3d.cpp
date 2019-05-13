@@ -2,6 +2,7 @@
 #include <vector>
 #include "MathUtils.hpp"
 #include "Float4.hpp"
+#include "Logger.hpp"
 
 Direct3d::Direct3d()
 {
@@ -19,6 +20,7 @@ bool Direct3d::InitVideoCardInfo()
 	HRESULT result = CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(factory.getAt()));
 	if (FAILED(result))
 	{
+		LOGE("CreateDXGIFactory failed!");
 		return false;
 	}
 
@@ -27,6 +29,7 @@ bool Direct3d::InitVideoCardInfo()
 	result = factory->EnumAdapters(0, adapter.getAt());
 	if (FAILED(result))
 	{
+		LOGE("EnumAdapters failed!");
 		return false;
 	}
 
@@ -35,6 +38,7 @@ bool Direct3d::InitVideoCardInfo()
 	result = adapter->EnumOutputs(0, adapterOutput.getAt());
 	if (FAILED(result))
 	{
+		LOGE("EnumOutputs failed!");
 		return false;
 	}
 
@@ -43,17 +47,18 @@ bool Direct3d::InitVideoCardInfo()
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
 	if (FAILED(result))
 	{
+		LOGE("GetDisplayModeList1 failed!");
 		return false;
 	}
 
 	// Create a list to hold all the possible display modes for this monitor/video card combination.
 	std::vector<DXGI_MODE_DESC> displayModeList(numModes);
-	//displayModeList.resize(numModes);
 	
 	// Now fill the display mode list structures.
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList.data());
 	if (FAILED(result))
 	{
+		LOGE("GetDisplayModeList2 failed!");
 		return false;
 	}
 
@@ -76,6 +81,7 @@ bool Direct3d::InitVideoCardInfo()
 	result = adapter->GetDesc(&adapterDesc);
 	if (FAILED(result))
 	{
+		LOGE("GetDesc failed!");
 		return false;
 	}
 
@@ -88,6 +94,7 @@ bool Direct3d::InitVideoCardInfo()
 	errno_t error = wcstombs_s(&stringLength, mVideoCardDescription.data(), 128, adapterDesc.Description, 128);
 	if (error != 0)
 	{
+		LOGE("Getting GPU description failed!");
 		return false;
 	}
 
@@ -302,6 +309,7 @@ bool Direct3d::InitRasterState()
 
 bool Direct3d::Init(uint16_t screenWidth, uint16_t screenHeight, bool vsync, HWND hwnd, bool fullscreen, float screenDepth, float screenNear)
 {
+	LOGI("Initializing DirectX3D");
 	// Store the vsync setting.
 	mVsyncEnabled = vsync;
 	mScreenWidth = screenWidth;
@@ -312,26 +320,47 @@ bool Direct3d::Init(uint16_t screenWidth, uint16_t screenHeight, bool vsync, HWN
 
 	// Get video card info (refresh rate, description, memory)
 	if (!InitVideoCardInfo())
+	{
+		LOGE("InitVideoCardInfo failed!");
 		return false;
+	}
 
 	// Initialize DirectX components
 	if (!InitSwapChain(hwnd, fullscreen))
+	{
+		LOGE("InitSwapChain failed!");
 		return false;
+	}
 
 	if (!InitRenderTargetView())
+	{
+		LOGE("InitRenderTargetView failed!");
 		return false;
+	}
 
 	if (!InitDepthBuffer())
+	{
+		LOGE("InitDepthBuffer failed!");
 		return false;
+	}
 
 	if (!InitDepthStencilState())
+	{
+		LOGE("InitDepthStencilState failed!");
 		return false;
+	}
 
 	if (!InitDepthStencilView())
+	{
+		LOGE("InitDepthStencilView failed!");
 		return false;
+	}
 
 	if (!InitRasterState())
+	{
+		LOGE("InitRasterState failed!");
 		return false;
+	}
 
 	// Setup the viewport for rendering
 	D3D11_VIEWPORT viewport;
@@ -354,6 +383,7 @@ bool Direct3d::Init(uint16_t screenWidth, uint16_t screenHeight, bool vsync, HWN
 	// Create an orthographic projection matrix for 2D rendering.
 	mOrthoMatrix = Matrix::MakeOrtho(-static_cast<float>(screenWidth) / 2, static_cast<float>(screenWidth) / 2, -static_cast<float>(screenHeight) / 2, static_cast<float>(screenHeight) / 2, screenNear, screenDepth);
 
+	LOGI("DirectX3D initialized!");
 	return true;
 }
 

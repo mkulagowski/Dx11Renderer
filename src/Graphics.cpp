@@ -1,5 +1,6 @@
 #include "Graphics.hpp"
 #include "MathUtils.hpp"
+#include "Logger.hpp"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
@@ -15,6 +16,7 @@ Graphics::~Graphics()
 
 bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 {
+	LOGI("Initializing Graphics");
 	// Create the Direct3D object.
 	mD3d = std::make_unique<Direct3d>();
 
@@ -22,6 +24,7 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 	bool result = mD3d->Init(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
+		LOGE("DirectX3D initialization FAILED!");
 		MessageBox(hwnd, "Could not initialize Direct3D", "Error", MB_OK);
 		return false;
 	}
@@ -153,6 +156,8 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 
 	mLight = std::make_unique<LightManager>();
 
+	LOGI("Graphics initialized!");
+
 	return true;
 }
 
@@ -181,13 +186,12 @@ bool Graphics::Render()
 {
 	// Clear the buffers to begin the scene.
 	mD3d->BeginScene(Vector(0.0f, 0.0f, 0.0f, 1.0f));
-	//printf(":::BEGIN RENDER\n");
+
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	for (auto &i : mModels)
 	{
 		if (i)
 		{
-			//printf("%s\n", i->tag.c_str());
 			i->Bind(mD3d->GetDeviceContext());
 
 			mShader->Render(mD3d->GetDeviceContext(), i->GetIndexCount(), i->GetWorldMatrix(), mCamera->GetViewMatrix(), mD3d->GetProjectionMatrix(),
@@ -209,6 +213,7 @@ bool Graphics::Render()
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
 	// Present the rendered scene to the screen.
 	mD3d->EndScene();
 

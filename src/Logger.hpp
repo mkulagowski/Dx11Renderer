@@ -2,23 +2,14 @@
 
 #ifdef _DEBUG
 
-template<class ...Ts> void LOGI(const char* format, Ts... args) {
-	std::string formatStr(format);
-	formatStr = "[INFO] " + formatStr + "\n";
-	printf(formatStr.c_str(), args...);
+template<class ...Ts> void LOG(const char* format, Ts... args) {
+	printf(format, args...);
 }
 
-template<class ...Ts> void LOGW(const char* format, Ts... args) {
-	std::string formatStr(format);
-	formatStr = "[WARN] " + formatStr + "\n";
-	printf(formatStr.c_str(), args...);
-}
-
-template<class ...Ts> void LOGE(const char* format, Ts... args) {
-	std::string formatStr(format);
-	formatStr = "[ERRR] " + formatStr + "\n";
-	printf(formatStr.c_str(), args...);
-}
+#define LOGG(type, fmt, ...) LOG(("[" + std::string(type) + "][" + std::string(__FUNCTION__) + "::" + std::to_string(__LINE__) + "]  " + std::string(fmt) + "\n").c_str(), __VA_ARGS__)
+#define LOGI(fmt, ...) LOGG("INFO", fmt, __VA_ARGS__)
+#define LOGE(fmt, ...) LOGG("ERRR", fmt, __VA_ARGS__)
+#define LOGW(fmt, ...) LOGG("WARN", fmt, __VA_ARGS__)
 
 #else
 

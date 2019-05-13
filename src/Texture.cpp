@@ -1,4 +1,6 @@
 #include "Texture.hpp"
+#include "Logger.hpp"
+
 Texture::Texture()
 {
 }
@@ -65,6 +67,7 @@ bool Texture::CreateBuffers(ID3D11Device * device, const Image &img)
 
 	if (FAILED(result))
 	{
+		LOGE("CreateTexture2D failed");
 		return false;
 	}
 
@@ -78,5 +81,11 @@ bool Texture::CreateBuffers(ID3D11Device * device, const Image &img)
 
 	result = device->CreateShaderResourceView(texPtr.get(), &resViewDesc, mTexture.getAt());
 
-	return !FAILED(result);
+	if (FAILED(result))
+	{
+		LOGE("CreateShaderResourceView failed");
+		return false;
+	}
+
+	return true;
 }

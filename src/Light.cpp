@@ -104,7 +104,7 @@ void LightManager::RenderUI(ID3D11Device* device)
 
 		ImGui::Separator();
 		ImGui::Text("Coords:");
-		ImGui::SliderFloat3((std::string("Position##") + std::to_string(i)).c_str(), reinterpret_cast<float*>(&mLightBuffer.Lights[i].Position), -50.0f, 50.f);
+		ImGui::SliderFloat3((std::string("Position##") + std::to_string(i)).c_str(), reinterpret_cast<float*>(&mLightBuffer.Lights[i].Position), -500.0f, 500.f);
 		ImGui::SliderFloat3((std::string("Direction##") + std::to_string(i)).c_str(), reinterpret_cast<float*>(&mLightBuffer.Lights[i].Direction), -1.0f, 1.f);
 		
 
@@ -156,8 +156,8 @@ void LightManager::RenderUI(ID3D11Device* device)
 		ImGui::Separator();
 		ImGui::Text("Attenuation:");
         ImGui::SliderFloat((std::string("Constant##") + std::to_string(i)).c_str(), &mLightBuffer.Lights[i].ConstantAttenuation, 0.0f, 1.f);
-        ImGui::SliderFloat((std::string("Linear##") + std::to_string(i)).c_str(), &mLightBuffer.Lights[i].LinearAttenuation, 0.0f, 1.f);
-        ImGui::SliderFloat((std::string("Quadratic##") + std::to_string(i)).c_str(), &mLightBuffer.Lights[i].QuadraticAttenuation, 0.0f, 1.f);
+        ImGui::SliderFloat((std::string("Linear##") + std::to_string(i)).c_str(), &mLightBuffer.Lights[i].LinearAttenuation, 0.0f, .05f);
+        ImGui::SliderFloat((std::string("Quadratic##") + std::to_string(i)).c_str(), &mLightBuffer.Lights[i].QuadraticAttenuation, 0.0f, .02f);
 		ImGui::Separator(); ImGui::Separator();
     }
 }

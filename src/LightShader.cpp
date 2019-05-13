@@ -1,4 +1,5 @@
 #include "LightShader.hpp"
+#include "Logger.hpp"
 #include "TexturedLitPS.hpp"
 #include "TexturedLitVS.hpp"
 
@@ -19,6 +20,7 @@ bool LightShader::Render(ID3D11DeviceContext * deviceContext, int indexCount, Ma
 	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, cameraPos, light, material);
 	if (!result)
 	{
+		LOGE("Setting shader parameters FAILED!");
 		return false;
 	}
 
@@ -114,39 +116,21 @@ bool LightShader::CreateCBuffers(ID3D11Device* device)
 		return false;
 	}
 
-
-
-	//D3D11_BUFFER_DESC materialBufferDesc;
+	D3D11_BUFFER_DESC materialBufferDesc;
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
-	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cameraBufferDesc.ByteWidth = sizeof(Material);
-	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cameraBufferDesc.MiscFlags = 0;
-	cameraBufferDesc.StructureByteStride = 0;
+	materialBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	materialBufferDesc.ByteWidth = sizeof(Material);
+	materialBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	materialBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	materialBufferDesc.MiscFlags = 0;
+	materialBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&cameraBufferDesc, NULL, mMaterialBuffer.getAt());
+	result = device->CreateBuffer(&materialBufferDesc, NULL, mMaterialBuffer.getAt());
 	if (FAILED(result))
 	{
 		return false;
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
 	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
@@ -189,21 +173,40 @@ bool LightShader::CreateTextureSampler(ID3D11Device* device)
 
 bool LightShader::InitializeShader(ID3D11Device * device, HWND hwnd)
 {
+	LOGI("Initializing shader!");
+
 	if (!CreateVertexShader(device, gTexturedLitVSArray, sizeof(gTexturedLitVSArray)))
+	{
+		LOGE("CreateVertexShader failed!");
 		return false;
+	}
 
 	if (!CreatePixelShader(device, gTexturedLitPSArray, sizeof(gTexturedLitPSArray)))
+	{
+		LOGE("CreatePixelShader failed!");
 		return false;
+	}
 
 	if (!CreateInputLayout(device, gTexturedLitVSArray, sizeof(gTexturedLitVSArray)))
+	{
+		LOGE("CreateInputLayout failed!");
 		return false;
+	}
 
 	if (!CreateTextureSampler(device))
+	{
+		LOGE("CreateTextureSampler failed!");
 		return false;
+	}
 
 	if (!CreateCBuffers(device))
+	{
+		LOGE("CreateCBuffers failed!");
 		return false;
+	}
 	
+	LOGI("Shader initialized!");
+
 	return true;
 }
 
@@ -223,6 +226,7 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, Matri
 	result = deviceContext->Map(mLightBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 	{
+		LOGE("Mapping lightbuffer failed");
 		return false;
 	}
 
@@ -272,6 +276,7 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, Matri
 		result = deviceContext->Map(mMaterialBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		if (FAILED(result))
 		{
+			LOGE("Mapping materialbuffer failed");
 			return false;
 		}
 
