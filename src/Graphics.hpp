@@ -7,7 +7,7 @@
 #include "Direct3d.hpp"
 #include "Camera.hpp"
 #include "Model.hpp"
-#include "LightShader.hpp"
+#include "Shader.hpp"
 #include "Light.hpp"
 #include "Material.hpp"
 
@@ -34,7 +34,7 @@ private:
 	std::unique_ptr<Direct3d> mD3d;
 	std::unique_ptr<Camera> mCamera;
 	std::vector<std::unique_ptr<Model>> mModels;
-	std::unique_ptr<LightShader> mShader;
+	std::unique_ptr<Shader> mShader;
 	std::unique_ptr<LightManager> mLight;
 
 	std::unique_ptr<MaterialProperties> mTextureMaterial;

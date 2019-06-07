@@ -105,7 +105,7 @@ void LightManager::RenderUI(ID3D11Device* device)
 		ImGui::Separator();
 		ImGui::Text("Coords:");
 		ImGui::SliderFloat3((std::string("Position##") + std::to_string(i)).c_str(), reinterpret_cast<float*>(&mLightBuffer.Lights[i].Position), -500.0f, 500.f);
-		ImGui::SliderFloat3((std::string("Direction##") + std::to_string(i)).c_str(), reinterpret_cast<float*>(&mLightBuffer.Lights[i].Direction), -1.0f, 1.f);
+		ImGui::SliderFloat3((std::string("Direction##") + std::to_string(i)).c_str(), reinterpret_cast<float*>(&mLightBuffer.Lights[i].Direction), -10.0f, 10.f);
 		
 
 		if (mLastType[i] != mLightBuffer.Lights[i].LightType)

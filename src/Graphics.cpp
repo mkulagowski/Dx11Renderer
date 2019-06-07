@@ -151,7 +151,7 @@ bool Graphics::Init(uint16_t screenWidth, uint16_t screenHeight, HWND hwnd)
 
 	*/
 
-	mShader = std::make_unique<LightShader>();
+	mShader = std::make_unique<Shader>();
 	mShader->Initialize(mD3d->GetDevice(), hwnd);
 
 	mLight = std::make_unique<LightManager>();
